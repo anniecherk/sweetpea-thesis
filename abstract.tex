@@ -1,0 +1,13 @@
+%%% -*-LaTeX-*-
+%%% This is the abstract for the thesis.
+%%% It is included in the top-level LaTeX file with
+%%%
+%%%    \preface    {abstract} {Abstract}
+%%%
+%%% The first argument is the basename of this file, and the
+%%% second is the title for this page, which is thus not
+%%% included here.
+%%%
+%%% The text of this file should be about 350 words or less.
+
+The replicability crisis in experimental science is fueled by a lack of transparent and explicit discussion of experimental design in published work. An experimental design is a description of experimental factors and how to map those factors onto a sequence of trials such that researchers can draw statistically valid conclusions. This thesis introduces SweetPea, a SAT-sampler aided language that facilitates creating understandable, reproducible and statistically robust experiemental designs. SweetPea consists of (1) a high-level language to declaratively describe an experimental design, and (2) a low-level runtime to generate unbiased sequences of trials given satisfiable constraints. The high-level language provides primitives that closely match natural descriptions of experimental designs. To ensure statistically significant results, every possible sequence of trials that satisfies the design must have an equal likelihood of being chosen for the experiment. The low-level runtime samples sequences of trials by compiling experimental designs into Boolean logic, which are then passed to a SAT-sampler. The SAT-sampler provides guarantees that the solutions it finds are statistically robust.

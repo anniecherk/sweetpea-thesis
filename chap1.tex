@@ -1,0 +1,43 @@
+%%% -*-LaTeX-*-
+
+\chapter{Motivation}
+
+
+\section{Reliable Experimental Design and Reproducibility Crisis}
+
+The replicability crisis in experimental science is fueled by a lack of transparent and explicit discussion of experimental design in published work. While there are many software tools for modeling and running experiments, there are, to the best of our knowledge, none for designing them. Currently, scientists design experiments by writing complex scripts which manually balance the experimental factors of interests. There are two major issues with this approach: the first is that it may not (and often does not) produce unbiased sequence of trials. In practice, researchers construct these sequences without any statistical guarantees because the brute force solution for constructing unbiased sequences by enumerating all options is intractable; for a typical experiment the size of the search space is $10^{100}$. The second issue is that this approach is brittle. It is easy to introduce bugs that go unnoticed but which may have large consequences, and it is difficult to verify and reproduce another researcher's implementation. \cite{cohen1993psyscope} \cite{mathot2012opensesame} \cite{peirce2009generating}
+
+\section{Declarative Programming: Science without the Engineering Burden}
+
+blahblahblah
+
+\cite{meel2016constrained}
+
+blahblahblah
+
+\cite{torlak2014lightweight}
+
+
+\section{Requirements Statement}
+
+There is a need for a software system that allows domain scientist to design unbiased, replicable experiments. Moreover, this system needs to provide an easy-to-use, declarative interface so that scientists who are not necessarily trained as software engineers can create and reason about complicated experimental designs, and transparently share their experimental setups and design choices. SweetPea is just such a system; it is a language which provides semantics for describing experiments, a runtime for synthesizing experimental sequences from specifications, and a set of tools for debugging over-constrained designs. While the need for a system to automate experimental design is general to many types of science, we have built a prototype targeted for psychology and neuroscience, where issues of reproducibility and complexity of design have become a focus of attention.
+
+
+
+%%% Index phrases should be attached to an important word of a phrase,
+%%% and are usually best kept on a separate line by terminating the
+%%% previous line with a percent comment without intervening space, as
+%%% in this example:
+%%%
+%%%     \newcommand {\X} [1] {#1\index{#1}}
+%%%
+%%%     African ungulates,%
+%%%     \index{African ungulate}
+%%%     like the \X{gnu}, \X{impala}, \X{kudu}, and \X{springbok}
+%%%     live mostly in hot climate and consume vegetation.
+%%%
+%%% However, for this document, we only want lots of index entries to
+%%% populate a sample topic index.
+
+%%% ====================================================================
+%%% Cross-references for index entries should be specified only once:

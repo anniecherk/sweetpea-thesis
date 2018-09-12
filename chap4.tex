@@ -1,0 +1,78 @@
+%%% -*-LaTeX-*-
+
+\chapter{SweetPea Language}
+
+The goal of the SweetPea language is to have semantics that match the terms researchers use to describe their experiments, while also being amenable to being translated efficiently to SAT.
+
+TODO: everytime I saw "sometimes" come up with an example.
+
+\section{Components of an Experiment}
+
+To motivate our choice of primitives, we will first look at the components of an experiment.
+
+\subsection{Descriptions of Stimuli}
+- Usually factor with discrete levels
+- experiments typically have 2-7 factors with 2-4 levels each: important because it means a large search space
+- sometimes they might be nested (light color, dark color)
+- sometimes want to sample a continous distribution
+- sometimes don't fully cross all of them because can't keep the person there that long, but really want to try all combinations
+
+\subsection{Ordering Constraints}
+- need to specify the ordering to run Experiments, ie if you're testing the effect of the presence of A, you better be able to run it with and without A etc
+- really these are about relationships (presence or absense) of levels or factors, or arbitrary nestings. (1) congruence and (2) transitions as examples of derived levels
+- sometimes about relationships of other relationships! like, you can imagine balancing transitions
+- usually the complexity is limited by experimental limits, ie people actually have to complete these
+
+\subsection{Experimental Design and Balancing}
+- often want a full-crossing
+- sometimes experiment is too large for full crossing, so while experiment has over attributes (factors) they might not appear in all examples
+- sometimes its impossible to fully-counterweight and it'd be awesome if the tool could tell you if you were trying to do something impossible
+- sometimes can fix impossible by weighted crossing
+- sometimes can fix by "near balancing" or toss-away block, ie balancing transitions
+- ultimate declarative would be just say "these are what I want to analyze, balance for me"
+
+\subsection{Experimental Structure}
+- Experimental structure (ie multiple blocks)
+- sometimes want prologue / epilogue blocks
+- sometimes need these to balance transitions
+- sometimes have an experiment that consists of multiple experiments
+- sometimes want to reason between subjects because space is so large
+
+\section{Motivating Example (Congruence and/or Transitions)}
+
+- first describe the experiment in words
+- then code listing
+
+\section{SweetPea Primitives}
+
+for all: how does it map onto the pysch and why is it amenable to SAT
+
+\subsection{Factors and Levels}
+- possibly nested lists; that is to say trees
+- an experiment has one option for a level on at a time
+- we can represent whether a level is on or not as a boolean variable, then have a boolean constraint that says that only one can be on at a time
+- a nesting isn't represented in the boolean logic, it's just a reference to arbitraty groupings of levels that can be used in the relationships; can build a factor directly or from these groups. Q: what if overlapping level in multiple groupings? probably need to define it as a level then construct multiple references.
+- don't currently support sampling factors that are cont distributions because it's challenging to translate that to discrete boolean SAT
+
+\subsection{Derived Levels}
+- how do we represent these relationships?
+- because they all have to do with ordering, let's consider a "window". Windows have a width and a stride. ie, transition, ie, congruence.
+- windows implicitly "select" and group levels. 
+- we can then define functions. they are allowed to depend on the state (on or off) of levels, and use this state to say whether or not *they* are "on". Example, congruence. In this way, they're defining new levels (since a level is just a thing that knows whether it's on or off) -- which is why they're derived factors.
+
+- these should allow us to define things that skip elements, like the "bait" example
+
+- why is this amenable to SAT? Internally, we pick out the levels, create new levels whose value depends on a boolean relationship of those levels. Q: wait why does this work? Does this work? Make sure this works.
+
+TODO ASAP
+
+here's an idea: I can do it if I have a literal truth table.
+I can generate a truth table for the defined function by
+assume each input is a boolean level (this should be enforced)
+then take all boolean combos and literally run it
+that generates a truth table
+I can encode that truth table in the logic by translating to CNF
+
+\subsection{Experimental Design, Balacing and Experimental Structure}
+
+- really straightforward. An experimental sequence is a list of experimental blocks. An experimental block is at the high level these derivations and at the low level linearized into a list of SAT that the runtime can execute. A design is literally which factors are visible and for balancing we currently only support full-crossings.
