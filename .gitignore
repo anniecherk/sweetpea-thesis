@@ -20,3 +20,6 @@
 *.ser
 *.tmp
 *.old
+
+*.ind
+*.bbl
