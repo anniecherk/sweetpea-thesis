@@ -135,6 +135,11 @@ TEXFILES        = abstract.tex			\
 		  chap2.tex			\
 		  chap3.tex			\
 		  chap4.tex			\
+			chap5.tex			\
+			chap6.tex			\
+			chap7.tex			\
+			chap8.tex			\
+			chap9.tex			\
 		  appa.tex			\
 		  appb.tex			\
 		  appc.tex			\
