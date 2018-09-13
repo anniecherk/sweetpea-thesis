@@ -2,29 +2,58 @@
 
 \chapter{SweetPea Runtime}
 
-- Runtime works by translating to SAT
-- One hot encoding
-- Efficient encoding w/ Tsietin transform
+- chapter summary here
 
+\section{Conjunctive Normal Form (CNF)}
 
-\blah
+- variables are index based (important for examples)
 
-\section{Representing SweetPea Primitives in Boolean Formulas}
+- keep track of : 1) variables which need assignemnts, 2) boolean formulas using those vars
+
+- CNF is standard because it makes search easy ; what is it
+
+- can efficently (how efficeintly) translate into CNF
+
+\section{Representing SweetPea Primitives in CNF}
+
+- section summary here:
+
+- mention counting constraints in two flavors
 
 \subsection{Representing Levels and Factors}
 
+- as mentioned in the last chapter, levels correspond naturally to boolean values
+
+- need additional constraint; one hot encoding, exactly one true at a time. literally represent as (a and not b) or (not a and b) -- this would be a bad choice if there were many levels but given the experimental size this is the best decision.
+
+- walk through an example
+
+- also need "sum" constraints. These also count up, but we expect these to be much bigger numbers, ie in the experiment w/ 7 factors w/ 2 levels, there are 64 of each level. So these we compile to "counting constraints". Basically these are linear inequality. We compile them to SAT efficeintly through the Tsietin transform (see next chapter for details).
+
+- walk through an example
+
 \subsection{Representing Derived Levels and Derivation Functions}
 
-\blah
+Internally, we pick out the levels, create new levels whose value depends on a boolean relationship of those levels. The relationship is then defined by a literal truth table:
+- generate a truth table for the defined function by:
+- each input is a factor
+- then take all boolean combos and literally run it
+- that generates a truth table
+- encode that truth table in the logic by translating to CNF
 
-\section{Efficient Encoding with the Tseitin Transform}
-
-\blah
+- Work an example, for instance congruence.
 
 \section{Communicating with the SAT-Sampler}
 
-\blah
+- block diagram of all runtime
+
+- variables marked as "important" vs aux
+
+- translate output to be human readable; easy to integrate with other environments
+
 
 \section{Correctness Guarantees}
 
-\blah
+- cite guarantee from unigen
+
+- postulate why this is preserved: TODO

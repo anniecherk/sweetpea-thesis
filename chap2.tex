@@ -2,21 +2,46 @@
 
 \chapter{SweetPea Overview}
 
+- there's a language and a runtime
+
+- language has to do with the domain specific representation (plus thinking about how choice of representation influences whether its amenable to SAT)
+
+- runtime has to do with executing a representation of the experiment with the SAT sampler; decisions about the SAT representation have to do with the runtime.
+
 \section{A Language for Experimental Design}
 
 
 The independent and control variables in an experiment are called \textit{factors}, and a trial is specified by a combination of levels of different factors. As a running example, consider an experiment where subjects are shown shapes of different colors; the factors are "color" and "shape", and each colored shape is a trial. Many experiments have additional constraints on the trials, such as "no more than 4 red shapes in a row".
 
+- briefly mention the other parts of experiments: design, crossings, blocks
 
-To ensure statistically significant results, every possible trial sequence that satisfies the constraints must have an equal likelihood of being chosen for the experiment. This guarantees that the method for generating trial sequences is not introducing bias. In practice, however, researchers construct these trial sequences without statistical guarantees. The number of valid sequences is both intractably large and sparse in the space of all sequences, so it is not possible to find a valid sequence by randomly sampling all sequences or by enumerating all valid sequences.
+- the purpose of the language is make it easy to represent experimental designs, while also being amenable to being translated into SAT
 
-SweetPea provides a high-level interface to declaratively describe an experimental design, and a low-level synthesizer to generate unbiased sequences of trials given satisfiable constraints. At the heart of the bias problem is the need to sample from constrained combinatorial spaces with statistical guarantees; SweetPea samples sequences of trials by compiling experimental designs into Boolean logic, which are then passed to a SAT-sampler. The SAT-sampler Unigen %\cite{meel2016constrained}%
-provides statistical guarantees that the solutions it finds are approximately uniformly probable in the space of all valid solutions. This means that while producing sequences of trials that are perfectly unbiased is intractable, we do the next best thing-- produce sequences that are \emph{approximately} unbiased.
-
-\subsection{Stroop Experiment}
 
 \section{A Runtime for Uniform Sampling}
 
+SweetPea can be viewed as a domain-specific interface to SAT-sampling, and while there are other languages that rely on SAT-solvers \cite{torlak2014lightweight}, none that we know of leverage the guarantees provided by SAT-samplers. To ensure statistically significant results, every possible trial sequence that satisfies the constraints must have an equal likelihood of being chosen for the experiment. This guarantees that the method for generating trial sequences is not introducing bias. In practice, however, researchers construct these trial sequences without statistical guarantees. The number of valid sequences is both intractably large and sparse in the space of all sequences, so it is not possible to find a valid sequence by randomly sampling all sequences or by enumerating all valid sequences.
 
-SweetPea can be viewed as a domain-specific interface to SAT-sampling, and while there are other languages that rely on SAT-solvers %\cite{torlak2014lightweight}
-, none that we know of leverage the guarantees provided by SAT-samplers. SweetPea provides a rich set of primitives that closely match the terms in which psychologists think about experimental design, allowing them to concisely describe what analysis they wish to perform, rather than how to construct the algorithm to do so.
+The runtime to generates unbiased sequences of trials given satisfiable constraints. At the heart of the bias problem is the need to sample from constrained combinatorial spaces with statistical guarantees; SweetPea samples sequences of trials by compiling experimental designs into Boolean logic, which are then passed to a SAT-sampler. The SAT-sampler Unigen %\cite{meel2016constrained}%
+provides statistical guarantees that the solutions it finds are approximately uniformly probable in the space of all valid solutions. This means that while producing sequences of trials that are perfectly unbiased is intractable, we do the next best thing-- produce sequences that are \emph{approximately} unbiased.
+
+- the runtime provides the uniformity guarantee because the sampler provides the guarantee
+
+- because we're compiling to SAT there are a lot of low level "representation in SAT" decision to be made; need to ensure an *efficient* representation
+
+- provide an estimate for no. of vars and no. of clauses
+
+
+\section{Running Example: the Stroop Experiment}
+
+- outline the simplest stroop (2x2 experiment)
+
+- explain all the parts
+
+- explain the desired analysis
+
+- show a sample sequence
+
+- state that all 4 sequences should be equally likely
+
+- make this into a block diagram perhaps

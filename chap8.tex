@@ -1,11 +1,67 @@
 \chapter{Future Work}
+
+- chapter summary
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Beyond Psychology}
+
+- other science domains and what would need to change
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Future Language}
+
+- section summary: discussed wishes in chapter 2 section 1, these are the ones that are currently unimplemented
+
 \subsection{Weighted Crossings}
+
+- discussed weighted crossings as a necessary component of experiments in chapter 2; not yet implemented
+
 \subsection{Sampling Continuous Factors}
+
+- this is challenging because how does this get translated to SAT?
+
 \subsection{Automated Experimental Design}
+
+- ANOVA experimental design
+
+- need to make sure that this is correct in the domain in many different flavors of experiment
+
 \subsection{Syntactic Sugar}
+
+- don't have to write the name of the factor when the level name is unique
+
+-
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Future Runtime}
+
+- section summary
+
 \subsection{Verified Core}
+
+- the motivation for SweetPea is that it will make it easy to write correct experiments; that only holds if sweetpea doesn't itself have bugs.
+
+- the tsietin transform is ripe for bugs because it's doing a non-human-readable transformation
+
+- would be cool to formally verify that the transformations are correct
+
+
 \subsection{Debugging unSAT experiments}
+
+- why is this a problem: usability: if it's unSAT it just say unSAT but not why. Not very useful.
+
+- can get "minimally unsat core" from SAT solver, maybe can translate that back to user-defined levels to guess what the problem is
+
 \subsection{Iterative experimental design and Partial Satisfiability}
+
+- really want to know if experiment is over-constrained
+
+- maybe could try specify subsets to try to iterately find the most constraints that can be simultaneously satisfied -- solvers let you push / pop clauses
+
+\subsection{Optimizations}
+
+- xor constraints
+
+- truth table simplification (Quine–McCluskey)
+
+- choice of SAT encodings and variable v. clauses

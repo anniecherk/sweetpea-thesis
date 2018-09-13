@@ -2,27 +2,31 @@
 
 \chapter{Related Work}
 
-This is a chapter.
+- there are three related areas: work related to the pyscology computation and experimental design, work related to domain specific and solver-aided languages, and work related to sampling combinatorial spaces. 
 
 
 \section{Psychology Toolboxes}
 
-- psyScope
-- psychoPy
-- OpenSesame
+- psyScope \cite{cohen1993psyscope}
+
+- psychoPy \cite{mathot2012opensesame}
+
+- OpenSesame \cite{peirce2009generating}
 
 \subsection{Reproducibility Crisis}
 
-\blah
+- TODO: surely something goes here
 
 \section{Domain Specific Languages}
 
-- this is a huge area, not sure need to cite anything
+- probably don't need to cite anything here?
 
 \subsection{Solver Aided Languages}
 
-- rosette
+- rosette \cite{torlak2014lightweight}
+
 - sketch: "Domain-Specific Symbolic Compilation"
+
 - dafny maybe
 
 - hyperkernel: co-designing a language and the verification
@@ -31,36 +35,51 @@ This is a chapter.
 \section{Combinatorial Search Spaces}
 
 - finding solutions in a large search space-- no really, very large
+
 - how large?
+
 - so large
+
 - what is the nature of our search constraints? things like 60 red words, 60 blue words (in Stroop, see chapter 2).
 
 
 \subsection{Sampling Methods}
 
 - sampling is the problem of finding solutions
+
 - could try solutions at random: turns out they are sparse (most examples don't have 60 red, 60 blue)
+
 - could try to generate all solutions: turns out there are too many (lots of possible arrangements)
 
 - could use MCMC, but doesn't provide guarantees
+
 - this project is *really* about providing this guarantee that we're not introducing bias because this is a huge deal
 
 \subsection{Boolean Satisfiability}
 
 - SAT is a classic problem, NP-complete
-- SAT solvers happen to be really good
+
+- SAT solvers are really efficient solvers
+
 - To specify something in SAT, you use variables and specify invariants
+
 - the SAT solver finds an assignment that satisfies the invariants
+
 - we use a SAT sampler which finds multiple assignments, and with guarnatees
 
 - an alternative is using SMT constraints
+
 - we compile to SAT because unigen is available; to use a different tool we could pretty easily swap out the backend
 
 
 \subsection{Uniform Sampling}
 
-- re-read unigen paper
+\cite{meel2016constrained}
+
 - what problem is it solving? want uniform for coverage
+
 - who else cares about this problem
+
 - how is it solved: universal hash functions
+
 - what alternatives exist

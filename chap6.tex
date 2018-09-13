@@ -2,32 +2,55 @@
 
 \chapter{Implementing SweetPea}
 
-This is a chapter.
-yes
-it is
+- chapter summary
 
 \section{Language Implementation: Decisions and Alternatives}
-\subsection{Internal Representations}
+
+- section summary
 
 \subsection{Embedding Language}
 
-\subsection{Level Encodings}
-- trade-off between more variables and more clauses
+- was in haskell
 
+- now is in python
 
-\section{Tsietin Transform Implementation}
+- in the future, perhaps in racket for macro options
+
+- why is this important / consequences to these choices
+
+\subsection{Internal Representations}
+
+- pros / cons of using one-hot vs binary : trade-off between more variables and more clauses
+
+- todo: more examples
+
+\section{Runtime Implementation: Tsietin Transform}
+- necessary to efficeintly encode on the scale of 60 of these 120 boolean vars need to be true
+
+- how efficient is it?
+
+- works by mimicing popcount circuitry
+
+- generates a bunch of "junk variables"
+
 \subsection{Binding Variables: Iff}
+- new variable "equals" if their values are in lockstep
+
 \subsection{Adders}
+- half adder example
+
+- full adder example
+
 \subsection{Ripple Carry Adders}
+- multiple options here, the one I went with
+
+- trade-offs of options
+
 \subsection{Pop Count Circuit}
+- pop count circuit example
+
 \subsection{Exhaustive Testing}
 
+- example of input / output: see how it's prone to error
 
-\section{Runtime Implementation: Interfacing with Unigen}
-\subsection{CNF}
-\subsubsection{Representing Derived Levels in CNF}
-\subsection{modified CNF: xor Constraints}
-
-\section{Output Formats}
-\subsection{Human Readable}
-\subsection{Interfacing with PsyNeuLink}
+- tested for a given size all assignments

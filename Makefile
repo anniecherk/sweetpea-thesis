@@ -140,7 +140,8 @@ TEXFILES        = abstract.tex			\
 		  appc.tex			\
 		  notation.tex
 
-THESIS		= sample-thesis-0
+THESIS		= sweetpea-thesis
+#sample-thesis-0
 
 TOPFILE		= $(THESIS).tex
 
