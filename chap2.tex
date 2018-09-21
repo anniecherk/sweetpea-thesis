@@ -69,22 +69,41 @@ def no_text_reps(text0, text1):
 constraints = enforce(Transition(no_text_reps, [text, text]))
 \end{lstlisting}
 
-TODO mention ENFORCE
+TODO mention ENFORCE-- or specify a factor with only one level??
 
-- briefly mention the other parts of experiments: design, crossings, blocks
+does this work? who knows? what's the API for specifying counting contraints?
 
-- the purpose of the language is make it easy to represent experimental designs, while also being amenable to being translated into SAT
+~~~~
 
+Having specified the factors and the constraints over those factors, we can now specify the rest of the experimental design:
+
+\begin{lstlisting}
+design = [ink_color, text]
+crossing = design
+
+experiment = full_crossing(design, crossing, constraints)
+
+synthesize_trials(experiment)
+\end{lstlisting}
+
+In this example, the design and the full crossing are the same, though that doesn't need to always be the case. We specify the experiment to be the full crossing, but more generally we can construct experiments out of multiple "blocks" of crossings. The call to synthesize\_trials translates the experiment to a boolean formula representation and calls the SAT sampler.
 
 \section{A Runtime for Uniform Sampling}
 
-SweetPea can be viewed as a domain-specific interface to SAT-sampling, and while there are other languages that rely on SAT-solvers \cite{torlak2014lightweight}, none that we know of leverage the guarantees provided by SAT-samplers. To ensure statistically significant results, every possible trial sequence that satisfies the constraints must have an equal likelihood of being chosen for the experiment. This guarantees that the method for generating trial sequences is not introducing bias. In practice, however, researchers construct these trial sequences without statistical guarantees. The number of valid sequences is both intractably large and sparse in the space of all sequences, so it is not possible to find a valid sequence by randomly sampling all sequences or by enumerating all valid sequences.
+A \emph{boolean formula} consists of \emph{boolean variables} combined using boolean operators, such as AND, OR and NOT. A \emph{satisfying assignment} is a specification of True or False to each boolean variable which causes the entire formula to evaluate to True. Some formulas are unsatisfiable.
 
-The runtime to generates unbiased sequences of trials given satisfiable constraints. At the heart of the bias problem is the need to sample from constrained combinatorial spaces with statistical guarantees; SweetPea samples sequences of trials by compiling experimental designs into Boolean logic, which are then passed to a SAT-sampler. The SAT-sampler Unigen %\cite{meel2016constrained}%
-provides statistical guarantees that the solutions it finds are approximately uniformly probable in the space of all valid solutions. This means that while producing sequences of trials that are perfectly unbiased is intractable, we do the next best thing-- produce sequences that are \emph{approximately} unbiased.
+An example of an unsatisfiable formula is (A AND (NOT A)). Regardless of whether A is True of False, this formula will always evaluate to False. In contrast, the formula (A AND B) is satisfied by the assignment A is True and B is True, because (True AND True) evaluates to True.
 
-- the runtime provides the uniformity guarantee because the sampler provides the guarantee
+How do we represent the program above as a boolean formula?
 
-- because we're compiling to SAT there are a lot of low level "representation in SAT" decision to be made; need to ensure an *efficient* representation
+First, we represent each level of each trial as a boolean variable, which corresponds to whether or not that level is chosen for the produced experimental sequence. For our Stroop example, there are 4 trials, each of which have 4 boolean variables corresponding to each of the levels for a total of 16 boolean variables. A real experiment will have on the order of hundreds to thousands of boolean variables. These level variables are bound by additional constraints such as that only one level per factor is true, as well as constraints that say how many instances of a level should exist in a given experimental block.
 
-- provide an estimate for no. of vars and no. of clauses
+For our Stroop example, this means that for each trial we create boolean variables to represent ink\_color=red, ink\_color=blue, text=red, text=blue. We create boolean formulas for each trial which say that exactly one of ink\_color=red or ink\_color=blue must be true, and that there must be two ink\_color=red's in the fully crossed block.
+
+We have multiple strategies for encoding constraints, but for now let's say we have a strategy for encoding constraints of the form "no more than K in a row". We can use this to encode our constraint that there should be no repetitions of stimuli whose text is the same.
+
+Once we've created this boolean formula which represents all the relationships which the levels must fulfill, we can pass this formula to the SAT sampler. If there exists an assignment of the boolean variables which satisfies all the constraints, the sampler will return one such assignment. If there are no satisfying assignments the sampler will state that the formula is unsatisfiable.
+
+The solution that the sampler finds is guaranteed to be approximately uniformly probable in the space of all possible solutions. We currently use the SAT sampler Unigen, but providing this guarantee is the goal of all uniform sampling. The sampler provides this goal by using a special family of hash functions called universal hash functions. For our Stroop example, this means that each of the 8 valid orderings in \figref{valid_seqs} should be approximately equally likely.
+
+If the sampler finds a satisfying assignment to the variables, we can then translate those variables back to the levels they represent. For our Stroop example, this means we will get assignments to the 16 boolean variables, 4 of them for each trial. These will determine the values of each of the trials, and because we have satisfied all the necessary constraints, results in a valid ordering of the trials.
