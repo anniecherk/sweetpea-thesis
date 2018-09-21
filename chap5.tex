@@ -6,9 +6,11 @@
 
 \section{Conjunctive Normal Form (CNF)}
 
-A boolean formula consists of boolean variables combined using boolean operators, such as AND, OR and NOT. There are many canonical forms for boolean formulas; the one that SAT solvers commonly use is Conjunctive Normal Form (CNF). CNF is an "and of ors" meaning it has a
+A boolean formula consists of boolean variables combined using boolean operators, such as AND, OR and NOT. There are many canonical forms for boolean formulas; the one that SAT solvers commonly use is Conjunctive Normal Form (CNF). CNF is an "and of ors". This means that CNF is built out of OR clauses, which are clauses in which the boolean OR operator is applied to a list of variables. A or B or (not C) or D is an example of an OR clause. CNF is then the AND operator applied to a list of OR clauses. (A or B) and (C or not D) is an example of a boolean formula in CNF.
 
-TODO code listing example
+SAT solvers typically process boolean formulas in CNF. This is partially because they are amenable to common search strategies that solvers use in search of satisfying assignments, and partially because there is an efficient translation from a boolean formula in any form to the CNF canonical form.
+
+More specifically, solvers typically process boolean formulas in the DIMACS CNF form. In the DIMACS convention, boolean variables are denoted by their index. This means that a formula like (A or B) and (C or not D) is represented as (1 or 2) and (3 or -4). This index based renaming is very convinient as a convention for generating fresh variable names-- you just need to increment the variable counter.
 
 - variables are index based (important for examples)
 
