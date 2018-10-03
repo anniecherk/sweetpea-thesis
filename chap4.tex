@@ -10,32 +10,39 @@ TODO: everytime I saw "sometimes" come up with an example.
 
 \section{Components of an Experiment}
 
-To motivate our choice of primitives, we will first look at the components of an experiment.
+We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now let's look at the range of experiments we wish to model, and how our representations of these experiments are amenable to SAT.
 
 \subsection{Descriptions of Stimuli}
-- Usually factor with discrete levels
 
-- experiments typically have 2-7 factors with 2-4 levels each: important because it means a large search space
+TODO diagrams
 
-- sometimes they might be nested (light color, dark color)
+Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue.
 
-- sometimes want to sample a continous distribution
+Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli. Often the ideal goal is to \emph{fully cross} all of the factors to produce all possible combinations of stimuli, but sometimes factors are left out of the full crossing. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing.
 
-- sometimes don't fully cross all of them because can't keep the person there that long, but really want to try all combinations
+Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and pink) and dark colors (like navy and maroon).
+
+Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the research manually discretizing the continoum into several discrete values. This case is particularly challenging for sweetpea because it is difficult to phrase sampling a continious distribution as a boolean formula; for more thought on how we could better support this see Future Work.
 
 \subsection{Ordering Constraints}
-- need to specify the ordering to run Experiments, ie if you're testing the effect of the presence of A, you better be able to run it with and without A etc
 
-- really these are about relationships (presence or absense) of levels or factors, or arbitrary nestings. (1) congruence and (2) transitions as examples of derived levels
+Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if you are testing whether the presence of a certain level effects the subject's reaction time, you need control over when that level occurs and how often it occurs in relation to other levels. More generally, you need to be able to constrain the presence or absense of relationships which you define over the levels. Since levels can be grouped into arbitrary sub-levels, you should more generally be able to specify constraints on relationships over the sub-levels.
 
-- sometimes about relationships of other relationships! like, you can imagine balancing transitions
+TODO: about diagrams
 
-- usually the complexity is limited by experimental limits, ie people actually have to complete these
+One example of such a relationship is a \emph{transition} constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). Another example is a \emph{congruence} constraint, which specifies whether the levels of different factors are, according to a user-specified metric, complementary or conflicting. A congruence constraint for the Stroop is whether the color of the ink and the text are the same (the word "red" in red ink) or not.
+
+Another common relationship is a \emph{balancing} constraint. A pair of levels is balanced if each instance shows up the same number of times; a full crossing of all levels is a fully balanced experiment.
+
+Constraints can also be defined in terms of other constraints. For instance, in the Stroop test one may want to balance the number of congruent and incongruent levels, or even balance the transitions between congruent and incongruent levels.
 
 \subsection{Experimental Design and Balancing}
-- often want a full-crossing
 
-- sometimes experiment is too large for full crossing, so while experiment has over attributes (factors) they might not appear in all examples
+Experiments which include every possible combination of levels are \emph{fully crossed} designs. Fully crossings are desirable because they allow the researcher to test the full space of possible stimuli.
+
+Sometimes, however, an experiment is either too large or too small. An experiment can be too large if it has too many elements in the full crossing because there are limits on how many tasks a subject can perform in a single session reliably. If an experiment is too large it can either be restated as a full crossing of only a subset of the factors (with the non-crossed factors being assigned at random, with uniform probability), or it can be divided across subjects or across experimental sessions. An experiment can be too small if the full crossing has too few stimuli to reliably draw conclusions. In this case, the experiment can either be multiple full crossings back-to-back, or the contents of multiple full crossings combined into a larger experimental block.
+
+
 
 - sometimes its impossible to fully-counterweight and it'd be awesome if the tool could tell you if you were trying to do something impossible
 
@@ -54,7 +61,8 @@ To motivate our choice of primitives, we will first look at the components of an
 
 - sometimes have an experiment that consists of multiple experiments
 
-- sometimes want to reason between subjects because space is so large
+- sometimes want to reason between subjects because space is so large or too small
+
 
 
 \section{SweetPea Primitives}
@@ -65,6 +73,14 @@ To motivate our choice of primitives, we will first look at the components of an
 
 \subsection{Factors and Levels}
 - possibly nested lists; that is to say trees
+
+\begin{lstlisting}
+text      = ("text",      ["red", "blue"])
+
+light_colors = ("light_colors", ["pink", "aqua"])
+dark_colors = ("dark_colors", ["navy", "maroon"])
+ink_color = ("ink_color", [light_colors, dark_colors])
+\end{lstlisting}
 
 - an experiment has one option for a level on at a time
 
@@ -82,6 +98,18 @@ To motivate our choice of primitives, we will first look at the components of an
 - example: transitions
 
 - example: congruence
+
+\begin{lstlisting}
+ink_color = ("ink_color", ["red", "blue"])
+text      = ("text",      ["red", "blue"])
+
+repeat_level  = DerivedLevel("con", Transition(op.eq, [ink_color, ink_color]))
+switch_level  = DerivedLevel("inc", Transition(op.ne, [ink_color, ink_color]))
+transitionFactor = Factor("congruent?", [conLevel, incLevel])
+
+congruenceFactor = Factor("congruent?", ["con", "inc"], WithinTrial(op.eq, [ink_color, text]))
+
+\end{lstlisting}
 
 - windows implicitly "select" and group levels.
 
