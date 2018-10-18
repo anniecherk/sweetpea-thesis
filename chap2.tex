@@ -6,6 +6,8 @@ The previous chapter motivated the need for a software system that facilitates c
 
 SweetPea consists of a high-level language and a low-level runtime. The language provides primitives that closely match the terms that scientists use to describe their experimental designs. The runtime synthesizes an experimental sequence which is guaranteed to not prefer any valid solution over any other. The runtime provides this guarantee by representing the experiment as a boolean formula and interfacing with a SAT sampler; this constrains the language to be amenable to being translated into a boolean formula.
 
+The ultimate vision for a system like SweetPea is for the researcher to declaratively describe the analysis they wish to perform, and for the system to automatically derive the constraints required to produce an experiment for the desired analysis. Further, the sytems would ideally interactively iterate with the user to let them explore exactly what they wanted to analyze, and how choices they make effect the feasibility of the experimental design.
+
 In this chapter we'll start by looking at a simple version of a classic psychology experiment, the Stroop test, to identify the fundamental components of an experimental design. Then we'll see how these components are represented in the language and the runtime.
 
 \section{Running Example: the Stroop Experiment}
