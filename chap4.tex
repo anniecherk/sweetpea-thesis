@@ -84,6 +84,8 @@ Nested levels are handled in exactly the same way- the nesting is just a way to 
 
 \subsection{Deriving Levels with Windows}
 
+TODO COUNTING CONSTRAINTS
+
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window. See the diagram [DIAGRAM].
 
 Consider the transition relationship, which for a given factor specifies whether each following trial has the same value for that factor (a repetition) or a different value (a switch). We will represent this relationship as a new, derived, factor. This factor has two levels: one level which indicates that the following stimuli was a repetition, the other that it was a switch. What are the parameters for the window for this relationship? Because we consider two trials at a time, and want to consider all pairs of consecutive trials, the width is two, and the stride is one.
@@ -113,45 +115,44 @@ def repetition(ink_colors):
   return False
 
 repeat_level  = DerivedLevel("rep", Transition(repetition, [ink_color, ink_color]))
-switch_level  = DerivedLevel("swi", Transition(repetition, [ink_color, ink_color]))
+switch_level  = DerivedLevel("swi", Transition(repetition, [ink_color, ink_color], False))
 transitionFactor = Factor("congruent?", [repeat_level, switch_level])
 
 \end{lstlisting}
 
-Let's consider another use-case:
-
+Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is \emph{congruent}, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a WithinTrial window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
 
 \begin{lstlisting}
 ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
 
-def repetition(ink_colors):
-  if ink_colors[0] == ink_colors[1]:
+def congruent(ink_colors, texts):
+  if ink_colors[0] == text[0]:
     return True
   return False
 
-repeat_level  = DerivedLevel("rep", Transition(repetition, [ink_color, ink_color]))
-switch_level  = DerivedLevel("swi", Transition(repetition, [ink_color, ink_color]))
-transitionFactor = Factor("congruent?", [repeat_level, switch_level])
+con_level  = DerivedLevel("rep", WithinTrial(congruent, [ink_color, ink_color]))
+inc_level  = DerivedLevel("swi", WithinTrial(congruent, [ink_color, ink_color], False))
+congruenceFactor = Factor("congruent?", [con_level, inc_level])
 
 \end{lstlisting}
 
-Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on  TODO clarify.
-
-
+Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on  TODO clarify. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
 
 - why is this amenable to SAT? we've got discrete boolean elements whose state depends only upon the state of other boolean elements.
 
-
-
 - two options: you can either define a factor with a partition (levels are "where the func is true" and "where the func is false") or by defining and combining levels
 
 
-\subsection{Experimental Design, Balacing and Experimental Structure}
+\subsection{Experimental Design, Balancing and Experimental Structure}
 
-- full crossing = counting constraints
+Once we've described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The \emph{design} of the experiment is the specification of factors represent a trial. To specify the set of trials in the experiment we need to specify the \emph{crossing} of the design.
 
-- really straightforward. An experimental sequence is a list of experimental blocks. An experimental block is at the high level these derivations and at the low level linearized into a list of SAT that the runtime can execute. A design is literally which factors are visible and for balancing we currently only support full-crossings.
+A common crossing which SweetPea supports is a \emph{full crossing}. A full crossing consists of exactly one instance of every possible trial. For the small Stroop experiment this means four trials, with one instance each of: (red ink, red text), (red ink, blue text), (blue ink, red text), (blue ink, blue text). Another supported crossing is a variation of a full crossing which is each instance appears exactly $k$ times instead of exactly once. A reason to exclude a factor from a design is to exclude it from the full crossing.
 
-- we'll discuss how these are represented in SAT in the next section
+In a full crossing, each of the levels is \emph{balanced} with respect to all of the other levels; they all appear equally frequently. An experiment may additionally specify other levels which must be balanced, including derived levels. For example, we may wish to balance the congruent and incongruent levels.
+
+The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experiemental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
+
+Having discussed and motivated all of the aspects of the SweetPea language, in the next chapter we'll see how these elements are encoded as a boolean formula.
