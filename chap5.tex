@@ -39,29 +39,26 @@ The encoding we use allocates one boolean variable for each level of each factor
     \label{fig:stroop_crossing_vars}%
 \end{figure}
 
-
 In addition to any user-defined constraints, we always have two kinds of constraints over the level variables to correctly model the experiment. The first are \emph{consistency constraints} which state that only one level of each factor is selected at once. In the running example constraints of the form "(1 and not 2) or (not 1 and 2)" for each pair of levels would ensure that only one level is true at a time. The second kind of constraint is a \emph{crossing constraint} which ensures that the correct number of each kind of possible trial occurs in the experimental sequences.
 
-Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let's look at the constraints we need to add for the first trial-- first we'll add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected (17 iff (1 and 3)). We add constraints of this form for the other 3 states as well, ie (18 iff (1 and 4)), (19 iff (2 and 3)), (20 iff (2 and 4)). Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on. 
+Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let's look at the constraints we need to add for the first trial-- first we'll add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected (17 iff (1 and 3)). We add constraints of this form for the other 3 states as well, ie (18 iff (1 and 4)), (19 iff (2 and 3)), (20 iff (2 and 4)). Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on.
 
+A realistic experiment may have on the order of 100 trials. This means that we need to be careful with this last constraint, that exactly one of <list of length 100>, is true. In other types of crossings (see chapter 4, section 4.2.3) that constraint may more generally be exactly k of <list of length 100> is true. The naive encoding (these k, or those k, or those k, and so on) is exponential, therefore not efficient, and in practice too large for our problem size. Instead, we get an efficient encoding using a Tsietin transform to encode these \emph{counting constraints}. For a detailed description of this algorithm, see the next chapter.
 
- TODO DIAGRAM.5
-
-- as mentioned in the last chapter, levels correspond naturally to boolean values
-
-- variables are index based (important for examples)
-
-- keep track of : 1) variables which need assignemnts, 2) boolean formulas using those vars
-
-- need additional constraint; one hot encoding, exactly one true at a time. literally represent as (a and not b) or (not a and b) -- this would be a bad choice if there were many levels but given the experimental size this is the best decision.
-
-- walk through an example
-
-- also need "sum" constraints. These also count up, but we expect these to be much bigger numbers, ie in the experiment w/ 7 factors w/ 2 levels, there are 64 of each level. So these we compile to "counting constraints". Basically these are linear inequality. We compile them to SAT efficeintly through the Tsietin transform (see next chapter for details).
-
-- walk through an example
+In summary, an experimental sequence is represented as a list of boolean variables for each level of each trial. Assignments to these variables uniquely specify the experimental sequence. Irregardless of other user constraints, these variables are bound by constraints to ensure exactly one level is selected at a time for each factor, and that each state in the crossing is represented the correct number of times. The next chapter will examine the trade-offs from our encoding decisions. Next we'll see how these variables which represent levels can be used to encode derived levels and used with window constraints.
 
 \subsection{Representing Derived Levels and Derivation Functions}
+
+Derived levels are represented using the same technique as we used for the crossing constraints. We allocate a new boolean variables for each derived level, and bind it (in an if-and-only-if clause) to the original experimental sequence variables using the user-provided derivation function. To describe this process, we'll see how to add congruency constraints to the Stroop example; see figure \figref{congruence_vars_stroop} for a visualization of these new variables for the derived congruence levels.
+
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_congruence_vars_stroop}}
+    \caption{Of the 24 possible orderings, the highlighted 8 satisfy the constraints.}%
+    \label{fig:congruence_vars_stroop}%
+\end{figure}
+
+The current sweetpea implementation special-cases the constraint encoding for congruency because this is a common constraint in the experiments we wish to model. We encode the congruency TODO
+
 
 Internally, we pick out the levels, create new levels whose value depends on a boolean relationship of those levels. The relationship is then defined by a literal truth table:
 - generate a truth table for the defined function by:
