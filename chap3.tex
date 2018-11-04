@@ -46,25 +46,9 @@ The other simpler solution is to generate all of the valid elements, and then ch
 
 The simplest possible solution, and the one used in practice today by psychologists, is to generate the experimental sequence one trial at a time, backtracking when an assignment is made which violates the constraints. Unfortunantly this approach does not produce uniformly probable solutions. TODO diagram. Similarly, sampling methods like MCMC would also be able to tractably find solutions, but wouldn't provide any guarantee about their distribution.
 
-For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space. Therefore, we compromised: SweetPea uses an approximate sampling method with statistical guarantees. By using an approximate sampling method we gain traction on the otherwise untractably large space, and by using the SAT sampler Unigen we maintain strong rigerous guarantees of the distribution of solutions.
+For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space.
 
-\subsection{Boolean Satisfiability}
-
-- SAT is a classic problem, NP-complete
-
-- SAT solvers are really efficient solvers
-
-- To specify something in SAT, you use variables and specify invariants
-
-- the SAT solver finds an assignment that satisfies the invariants
-
-- we use a SAT sampler which finds multiple assignments, and with guarnatees
-
-- an alternative is using SMT constraints
-
-- we compile to SAT because unigen is available; to use a different tool we could pretty easily swap out the backend
-
-\cite{tseitin1983complexity}
+SweetPea uses the SAT-sampler Unigen because Unigen implements an approximate sampling method with statistical guarantees. Approximate sampling is a compromise: it allows us to gain traction on the otherwise untractably large space, while none-the-less maintaining strong statistically rigerous guarantees of the distribution of solutions. We use Unigen because implementing the underlying sampling method to work well in practice is complicated and an art; it seemed wiser to rely on an existing implementation rather than re-engineer it. This decision, however, to outsource searching the space to Unigen, came at the cost of encoding the domain specific constraints as a boolean formula. The decision to have SweetPea translate from the high-level domain specific semantics to SAT, as opposed to any other possible search space encoding, is an engineering decision; it comes directly from deciding it was better to rely on Unigen rather than reimplement parts of it's strategy. It is concievable that in the future, SweetPea would be able to compile to other backend representation, amenable to other search strategies.
 
 \subsection{Uniform Sampling}
 
