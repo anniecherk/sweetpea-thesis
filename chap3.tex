@@ -1,11 +1,9 @@
 %%% -*-LaTeX-*-
 
-TODO MOVE AFTER IMPLEMENTATION DETAILS
 
 \chapter{Related Work}
 
-- there are three related areas: work related to the pyscology computation and experimental design, work related to domain specific and solver-aided languages, and work related to sampling combinatorial spaces.
-
+SweetPea is a computation tool for pyschologists. More specifically, it is a domain specific language, and even more specifically, it is a solver-aided language. SweetPea attempts to solve a computationally hard problem: producing a solution to a set of constraints, such that that solution is as likely as any other solution. To the best of our knowledge, SweetPea is the only system to address this specific problem, however there is a large body of work related to each of these concepts. Here we present previous work on computational tools for psychology, domain specific and solver aided languages, and on working in combinatorial search spaces.
 
 \section{Psychology Toolboxes}
 
@@ -21,9 +19,11 @@ TODO MOVE AFTER IMPLEMENTATION DETAILS
 
 \section{Domain Specific Languages}
 
-- probably don't need to cite anything here?
+A domain specific language is a programming interface designed to express a specific set of problems, in contrast to a general programming language. There are so many domain specific languages, what do I even say here.
 
 \subsection{Solver Aided Languages}
+
+SweetPea is an interface to the SAT sampler Unigen. The benefit of Unigen is it provides strong statistical guarantees, but the drawback is that it only understands boolean formulas. To leverge the power of this tool
 
 - rosette \cite{torlak2014lightweight}
 
@@ -36,26 +36,17 @@ TODO MOVE AFTER IMPLEMENTATION DETAILS
 
 \section{Combinatorial Search Spaces}
 
-- finding solutions in a large search space-- no really, very large
+Why does SweetPea need to use a SAT-sampler? Using a SAT-sampler is like bringing a nuke to a knife fight; if a more straight-forward solution was tractable, it would be much simpler, faster, and more maintainable to use a simple solution.
 
-- how large?
+Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of ~120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
 
-- so large
+The first straight-forward solution is to try a random element in the search space, and see if that ordering satisfies the constraints. For realistic experiments, we found this approach to be intractable-- the set of solutions is sparce in the search space.
 
-- what is the nature of our search constraints? things like 60 red words, 60 blue words (in Stroop, see chapter 2).
+The other simpler solution is to generate all of the valid elements, and then choose uniformly among them. In practice, we also found this approach to be intractable. While the space of solutions was sparce in the search space, it was also far too large to exhaustively generate.
 
+The simplest possible solution, and the one used in practice today by psychologists, is to generate the experimental sequence one trial at a time, backtracking when an assignment is made which violates the constraints. Unfortunantly this approach does not produce uniformly probable solutions. TODO diagram. Similarly, sampling methods like MCMC would also be able to tractably find solutions, but wouldn't provide any guarantee about their distribution.
 
-\subsection{Sampling Methods}
-
-- sampling is the problem of finding solutions
-
-- could try solutions at random: turns out they are sparse (most examples don't have 60 red, 60 blue)
-
-- could try to generate all solutions: turns out there are too many (lots of possible arrangements)
-
-- could use MCMC, but doesn't provide guarantees
-
-- this project is *really* about providing this guarantee that we're not introducing bias because this is a huge deal
+For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space. Therefore, we compromised: SweetPea uses an approximate sampling method with statistical guarantees. By using an approximate sampling method we gain traction on the otherwise untractably large space, and by using the SAT sampler Unigen we maintain strong rigerous guarantees of the distribution of solutions.
 
 \subsection{Boolean Satisfiability}
 
