@@ -1,32 +1,30 @@
 \chapter{Future Work}
 
-- chapter summary
+SweetPea is a work-in-progress. The ultimate vision for SweetPea is to be a convinient system for describing many diverse types of experimental designs, and then quickly and seamlessly integrating the resulting experimental sequences with the users' existing experiment running pipelines. Ideally, SweetPea could be a tool in dialog with the user; the user should be able to use SweetPea to iterative explore the space of possible satisfiable experimental designs. To achieve this vision, SweetPea will need more high-level language features, and more runtime support for debugging unsatisfiable experiments.
 
-%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Beyond Psychology}
-
-- other science domains and what would need to change
+One possible future direction for SweetPea which is orthogonal to this vision is to expand SweetPea to support experiments in other domains beyond psychology. Possible candidates for fields that could benefit from an experimental design description language are biology and machine learning; in both biology and machine learning, however, the experimental designs describe the set of trials to consider and lack a notion of ordering. This means that SweetPea would likely need to support more semantics for describing subsets of the crossing space, and applying constraints to these subsets.
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Future Language}
 
-- section summary: discussed wishes in chapter 2 section 1, these are the ones that are currently unimplemented
+This section describes some language features which would facilitate supporting a wider range of experiments.
 
-\subsection{Weighted Crossings}
+\paragraph*{Weighted Crossings}
 
 - discussed weighted crossings as a necessary component of experiments in chapter 2; not yet implemented
 
-\subsection{Sampling Continuous Factors}
+
+\paragraph*{Sampling Continuous Factors}
 
 - this is challenging because how does this get translated to SAT?
 
-\subsection{Automated Experimental Design}
+\paragraph*{Automated Experimental Design}
 
 - ANOVA experimental design
 
 - need to make sure that this is correct in the domain in many different flavors of experiment
 
-\subsection{Syntactic Sugar}
+\paragraph*{Syntactic Sugar}
 
 - don't have to write the name of the factor when the level name is unique
 
@@ -37,7 +35,7 @@
 
 - section summary
 
-\subsection{Verified Core}
+\paragraph*{Verified Core}
 
 - the motivation for SweetPea is that it will make it easy to write correct experiments; that only holds if sweetpea doesn't itself have bugs.
 
@@ -46,19 +44,19 @@
 - would be cool to formally verify that the transformations are correct
 
 
-\subsection{Debugging unSAT experiments}
+\paragraph*{Debugging unSAT experiments}
 
 - why is this a problem: usability: if it's unSAT it just say unSAT but not why. Not very useful.
 
 - can get "minimally unsat core" from SAT solver, maybe can translate that back to user-defined levels to guess what the problem is
 
-\subsection{Iterative experimental design and Partial Satisfiability}
+\paragraph*{Iterative experimental design and Partial Satisfiability}
 
 - really want to know if experiment is over-constrained
 
 - maybe could try specify subsets to try to iterately find the most constraints that can be simultaneously satisfied -- solvers let you push / pop clauses
 
-\subsection{Optimizations}
+\paragraph*{Optimizations}
 
 - xor constraints
 
