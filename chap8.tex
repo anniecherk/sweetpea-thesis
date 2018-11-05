@@ -7,33 +7,29 @@ One possible future direction for SweetPea which is orthogonal to this vision is
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Future Language}
 
-This section describes some language features which would facilitate supporting a wider range of experiments.
 
 \paragraph*{Weighted Crossings}
+It would be useful to have a mechanism to specify a way to over or under sample a full crossing. A usecase for this is a version of the Stroop experiment with 3 colors; in a full crossing there are 3 congruent stimuli, and 6 incongruent stimuli (see \figref{weighted_crossing}). It is well-motivated to want to balance the number of congruent and incongruent stimuli. One can imagine either undersampling the incongruent stimuli (choosing 3 of the 6 with uniform likelihood), or oversampling the congruent stimuli (such that each congruent stimuli occurs twice). More generally, it will be worth spending time in the future investigating more ways of specifying parts of the space of the full crossing.
 
-- discussed weighted crossings as a necessary component of experiments in chapter 2; not yet implemented
-
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_weighted_crossing}}
+    \caption{Full crossing of a 3 color Stroop experiment. There are more congruent stimuli (along the diagonal) than incongruent stimuli.}%
+    \label{fig:weighted_crossing}%
+\end{figure}
 
 \paragraph*{Sampling Continuous Factors}
-
-- this is challenging because how does this get translated to SAT?
+Some experiments may contain levels which represent continuous values, such as TODO ASK SEBASTIAN. We can currently represent these experiments by binning the continuous values into a number of discrete levels-- but can we do better? This is challenging because the translation to SAT is necessarily discrete. Perhaps this could be supported as a pre- and post- processing step. The user could specify the continuous value, and SweetPea could performing binning, find a solution, and add random noise to the solution to simulate sampling from a continuous distribution.
 
 \paragraph*{Automated Experimental Design}
+In the spirit of declarative programming, it would be excellent to extend SweetPea to automatically derive the minimal set of counterbalancing conditions that satisfy the specified statistical analysis. Specifically, we may wish to provide an interface for the ANOVA (ANalysis Of VAriance) technique, which would allow researchers to state "contrast red with blue" instead of explicitly stating a design that does so. This higher-level interface will make it easier to specify experiments that accurately match the desired statistical analysis. Perhaps such an interface would also support iterative and interactive experiment specification. For instance, if multiple experiments match a desired statistcally analysis, perhaps the user can use SweetPea to explore the options and tradeoffs of each of those possible experiments.
 
-- ANOVA experimental design
+%\paragraph*{Syntactic Sugar}
+%- don't have to write the name of the factor when the level name is unique
 
-- need to make sure that this is correct in the domain in many different flavors of experiment
-
-\paragraph*{Syntactic Sugar}
-
-- don't have to write the name of the factor when the level name is unique
-
--
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \section{Future Runtime}
 
-- section summary
 
 \paragraph*{Verified Core}
 
