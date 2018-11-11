@@ -42,17 +42,16 @@ SweetPea promises to make it easier to write correct experiments; this promise c
 
 If a user writes down an experimental design which is overspecified, the SAT-sampler will state that the constraints are unsatisfiable. This is not very helpful-- why is it overspecified? Developing debugging support would create a more pleasant user experience. One possible approach is that some SAT-solvers can provide a \emph{minimally unsatisifiable core}, which specifies what set of variables lead to a contradicting assignment. It may be possible to use this minimally unsatisfiable core to translate back to which constraints over which levels are reported to be contradictory.
 
-\paragraph*{Iterative experimental design and Partial Satisfiability}
+\paragraph*{Iterative Experimental Design and Partial Satisfiability}
 
+Extending the idea of adding support for debugging unsatisfiable experiments, it would be great to have SweetPea be a tool for exploring the edge of satisfiability. For instance, perhaps a researcher could attempt to specify an ambitious experimental design which tests multiple things at once: perhaps in the future SweetPea could allow them to iteratively explore which subsets of their overconstrained design are satisfiable. One technique for facilitating this is some SAT solvers allow you to push / pop individual clauses; perhaps this fine-grain precision can be used to find the most constraints which can be simultaneously satisfied.
 
-- really want to know if experiment is over-constrained
-
-- maybe could try specify subsets to try to iterately find the most constraints that can be simultaneously satisfied -- solvers let you push / pop clauses
-
-\paragraph*{Optimizations}
-
-- xor constraints
-
-- truth table simplification (Quine–McCluskey)
-
-- choice of SAT encodings and variable v. clauses
+% \paragraph*{Optimizations}
+%
+% Finally, there are some optimizations in that could be applied to the encodings discussed in Chapters 3, 4 and 5. A few examples are:
+%
+% Unigen supports "xor" constraints, in addition to the usual CNF formula. This is useful because adders are based on an "xor" operation internally. The current implementation desugars these xors into CNF, but perhaps explicitly specifying these xors might make the search simpler for the sampler, resulting in faster runtimes.
+%
+% The truth tables currently used to represent derivation functions can be compressed / optimized using the Quine-McCluskey algorithm. Further
+%
+% - choice of SAT encodings and variable v. clauses
