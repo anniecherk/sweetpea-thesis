@@ -2,23 +2,4 @@
 
 This thesis presented SweetPea, a system for concisely describing experimental designs and rigerously generating experimental sequences that satisfy the design. SweetPea's high-level language allows scientists to declaratively describe the experiment they want to conduct rather than forcing them to mechanically describe how to construct their experimental sequences. This allows scientists to write concise, correct programs which describe their experiments, and produce unbiased experimental sequences; these programs can then be published and shared to document the experiment and facilitate replicability.
 
-
-When a psychologist runs an experiment, it is important that the randomized experimental sequences that they show to the subjects represent a truely random sample of experimental sequences which express the experiment they are trying to run. Unfortunantly, it is difficult to construct these experimental sequences while guaranteeing that the construction isn't favoring certain sequences over others; this is an NP-hard problem for a large problem size. Currently psychologists
-
-- Problem we tried to solve
-
-- Why it's important
-
-- What we did
-
-- What are the consequences + forward looking
-
-It is difficult to construct experimental sequences from randomized experimental designs while  This property, however, is also important
-
-
-
-Creating randomized experimental designs while guaranteeing that the resulting experimental sequen
-
-
-
-When psychologists test a hypothesis, they create an experimental design which expresses that experiment and then
+SweetPea provides high-level notions of factors, levels, derived levels and factors, and counting and balancing constraints. Psychologists can use this high-level language to specify their experimental designs, and SweetPea will encode those descriptions as a boolean formula. SweetPea guarantees that each experiemental sequences which satisfies the design is approximately uniformly likely. Guaranteeing that each sequence is exactly uniformly likely is an intractable problem because it is NP-hard for a large problem-size; we gain traction on this problem by making the acceptable compromise of guaranteeing that the sequences are approximately uniformly probably. SweetPea achieves this promise by calling out to the SAT-sampler Unigen, which in turn uses universal hash functions to get uniformity.

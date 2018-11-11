@@ -5,8 +5,9 @@ SweetPea is a work-in-progress. The ultimate vision for SweetPea is to be a conv
 One possible future direction for SweetPea which is orthogonal to this vision is to expand SweetPea to support experiments in other domains beyond psychology. Possible candidates for fields that could benefit from an experimental design description language are biology and machine learning; in both biology and machine learning, however, the experimental designs describe the set of trials to consider and lack a notion of ordering. This means that SweetPea would likely need to support more semantics for describing subsets of the crossing space, and applying constraints to these subsets.
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Future Language}
+\section{Language Wishlist}
 
+This section describes some language features which would facilitate supporting a wider range of experiments.
 
 \paragraph*{Weighted Crossings}
 It would be useful to have a mechanism to specify a way to over or under sample a full crossing. A usecase for this is a version of the Stroop experiment with 3 colors; in a full crossing there are 3 congruent stimuli, and 6 incongruent stimuli (see \figref{weighted_crossing}). It is well-motivated to want to balance the number of congruent and incongruent stimuli. One can imagine either undersampling the incongruent stimuli (choosing 3 of the 6 with uniform likelihood), or oversampling the congruent stimuli (such that each congruent stimuli occurs twice). More generally, it will be worth spending time in the future investigating more ways of specifying parts of the space of the full crossing.
@@ -28,25 +29,21 @@ In the spirit of declarative programming, it would be excellent to extend SweetP
 
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Future Runtime}
+\section{Runtime Wishlist}
+
+This section describes some runtime features which would facilitate a more interactive and usable environment.
 
 
 \paragraph*{Verified Core}
 
-- the motivation for SweetPea is that it will make it easy to write correct experiments; that only holds if sweetpea doesn't itself have bugs.
-
-- the tsietin transform is ripe for bugs because it's doing a non-human-readable transformation
-
-- would be cool to formally verify that the transformations are correct
-
+SweetPea promises to make it easier to write correct experiments; this promise can only be true if SweetPea itself doesn't contain bugs. The boolean encoding parts of the code, especially the counting constraint encoding, is ripe for bugs because it produces a CNF formula, which is difficult for humans read and to verify at a glance. Currently, we protect against bugs through exhaustive testing. In the future it would be wonderful to do one better, and to formally verify that these transformations are correct.
 
 \paragraph*{Debugging unSAT experiments}
 
-- why is this a problem: usability: if it's unSAT it just say unSAT but not why. Not very useful.
-
-- can get "minimally unsat core" from SAT solver, maybe can translate that back to user-defined levels to guess what the problem is
+If a user writes down an experimental design which is overspecified, the SAT-sampler will state that the constraints are unsatisfiable. This is not very helpful-- why is it overspecified? Developing debugging support would create a more pleasant user experience. One possible approach is that some SAT-solvers can provide a \emph{minimally unsatisifiable core}, which specifies what set of variables lead to a contradicting assignment. It may be possible to use this minimally unsatisfiable core to translate back to which constraints over which levels are reported to be contradictory.
 
 \paragraph*{Iterative experimental design and Partial Satisfiability}
+
 
 - really want to know if experiment is over-constrained
 

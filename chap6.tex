@@ -36,7 +36,7 @@ As mentioned in the previous chapter, we encode levels by allocating one boolean
 - todo: more examples
 
 \section{Encoding Counting Constraints: Tsietin Transform}
-\cite{tseitin1983complexity}
+%\cite{tseitin1983complexity}
 
 A fully crossed design specifies that each possible combination of levels occurs once in the design. A realistic experiment may have 7 factors, with 2 levels each, for a total of $2^7$ = 128 trials. Each of the levels will appear in half the trials, which means we need to encode constraints of the form "exactly 64 of these 128 variables must be true". The naive encoding ("these 64, or those 64, or those 64, etc") will have 64 choose 128 clauses, which is $10^{37}$ clauses-- far more than any SAT solver can possibly handle. Therefore, we need to encode these kinds of counting constraints in an encoding which is linear in the number of clauses and variables.
 
@@ -44,11 +44,25 @@ To achieve this linear encoding, we emulate the logic in a \emph{popcount} circu
 
 \subsection{Adders}
 
-TODO diagrams: 1) half-adder, 2) visualization of 1+1, 3) full-adder 4) ripple carry adder
-TODO solver v sampler
-TODO maybe actual DIMACS half adder that you can run
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=6cm]{fig_half_adder}}
+    \caption{Half Adder Logic.}%
+    \label{fig:half_adder}%
+\end{figure}
 
-First let's consider a half-adder. A half-adder is a circuit which takes two single bit inputs a and b and sets two single bit outputs s ("sum") and c ("carry") according to what the sum of the values of a and b are. The value of the input bits is 1 if that variable is true, and 0 if that variable is false. The output bits are boolean functions of the input bits: s = a xor b ; c = a and b.
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=2cm]{fig_one_plus_one_cnf}}
+    \caption{The DIMACS cnf representation of 1 + 1.}%
+    \label{fig:one_plus_one_cnf}%
+\end{figure}
+
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=2cm]{fig_one_plus_one_sol}}
+    \caption{The solution to 1 + 1.}%
+    \label{fig:one_plus_one_sol}%
+\end{figure}
+
+First let's consider a half-adder. A half-adder is a circuit which takes two single bit inputs a and b and sets two single bit outputs s ("sum") and c ("carry") according to what the sum of the values of a and b are. The value of the input bits is 1 if that variable is true, and 0 if that variable is false. The output bits are boolean functions of the input bits: s = a xor b ; c = a and b. See \figref{half_adder} for an illustration.
 
 What does it mean for a boolean variable to "equal" some relationship between other boolean variables? Really what we mean here is that their values vary in lock-step; that the variable being bound is true only when the relation is true, and false identically when the relation is false. This is the boolean relation iff. This means that we can represent a half-adder with the boolean formula:
 (s iff (a xor b)) and (c iff (a and b)).
@@ -56,7 +70,7 @@ What does it mean for a boolean variable to "equal" some relationship between ot
 How does using a SAT solver allow us to emulate this circuit? Recall that the solver's job is to return an assignment to each of our variables (a, b, c, s) such that the entire formula.
 
 Let's look at some examples. Lets imagine adding 1 + 1; this means that the full formula we hand to the solver is:
-(s iff (a xor b)) and (c iff (a and b)) and (a) and (b).
+(s iff (a xor b)) and (c iff (a and b)) and (a) and (b). See \figref{one_plus_one_cnf} for the DIMACS cnf representation of these boolean clauses.
 For the entire formula to be true, each of the and clauses must be true. This trivially means that the assignment for a is true, and b is true. Looking at the more interesting clauses, we know s is true iff (a xor b). a xor b is False when both a and b are true, so s must be false for that clause to be true. We also know that c is true iff (a and b), so c must also be true.
 
 This means that for this input, the solver would give us the satisfying assignment:
@@ -64,6 +78,8 @@ a is true
 b is true
 s is false
 c is true
+
+See \figref{one_plus_one_sol} for the solution from the SAT solver given the query in \figref{one_plus_one_cnf}.
 
 We can interpret this to mean that the carry bit is 1, and the sum bit is 0: meaning that 1 + 1 = 2. The rest of the constructions in this section follow this intuition: if we build up logical relationships between boolean variables which emulate circuits which perform the computation we wish perform, and constrain some of the input variables, then SAT solver will find what the values of all the other variables must be.
 
@@ -73,9 +89,22 @@ There are multiple ways to chain together multiple full-adders. SweetPea uses th
 
 Alternative ways to build multi-bit adders include carry-lookahead adders and carry-save adders; these circuits were designed as physical circuits which can compute the result of the addition in fewer cycles. In some sense, we are also concerned with how long it takes to compute the result: we would like to use the encodings which are most helpful for the solver. There isn't any reason to believe that using a more complicated multi-bit adder design would result in a more favorable encoding; therefore we decided to use the multi-adder design which is simplest to implement, maintain and debug.
 
-\subsection{Pop Count Circuit}
+\subsection{Popcount Circuit}
 
-TODO popcount diagram
+The popcount circuit counts the number of bits which are set in a bitstring by a divide-and-conquer-like technique. We'll discuss the process below; refer to \figref{popcount} for a diagram.
 
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=12cm]{fig_popcount}}
+    \caption{The logic of a popcount circuit.}%
+    \label{fig:popcount}%
+\end{figure}
 
-- pop count circuit example
+Let's work through an example: let's count the number of set bits in a bitstring with 9 bits. The first thing we do is zero-pad the bitstring until the next power of two. This is an encoding choice which allocates extra variables to avoid having to handle edge-cases in our logic by allowing us to always be able to divide-and-conquer neatly.
+
+Next, we'll pair up bits in the bitstring, and add those using 8 1-bit adders. These two-bit adders will produce 2-bit solutions. Each of these 8 solutions represents how many bits were set in each of their two bit inputs. We repeat this process until we are left with a single 5-bit solution.
+
+Explicitly, this means that we will pair up each of the two-bit solutions, and add them with 4 2-bit wide adders. These will produce 3 bit solutions. We will then pair up these three-bit solutions, and add them with 2 3-bit adders. This will produce only 2 4-bit solutions. Finally, we can take these 2 4-bit answers and add them together with a 4-bit adder to produce a final 5-bit solution.
+
+This final solution represents the number of bits set in the original bitstring in 5-bit binary. Recall that our desired interface was to specify constraints of the form "of these n variables, exactly k must be true". We can then specify this constraint by setting the bits of the final popcount solution to be exactly the same as the binary representation of k. For example, let's specify that we want exactly 3 of the 9 bit to be true our 9-bit popcount example. Let's call the bits of the solution [A, B, C, D, E]. A 5-bit binary representation of 3 is [0, 0, 0, 1, 1], so we can enforce the desired constraint by stating [-A, -B, -C, D, E].
+
+We also want to provide an interface for specifying constraints of the form "of these n variables, at least (or at most) k must be true". To encode these constraints, we follow a similar technique: we compute the bits which represent the result of the popcount, and encode k in binary. Then, to enforce the inequality we perform a trick: we rewrite $ k < n $ as $ k - n < 0$. To enforce this at the bit-level we write (-n) by representing it in twos-complement. We can then add k + (-n) using a ripple-carry adder. Then, to ensure that $k + (-n) < 0$ we will force the result of that summation to be negative by forcing the top sum bit to be zero.

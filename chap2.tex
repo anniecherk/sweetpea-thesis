@@ -56,10 +56,12 @@ The version of the SweetPea language we'll discuss is embedded in Python, so use
 
 First, we represent the factors directly as a list of levels:
 
-\begin{lstlisting}
+%\begin{code}
+\begin{lstlisting} 
 ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
 \end{lstlisting}
+%\end{code}
 
 Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same:
 
@@ -101,4 +103,4 @@ The solution that the sampler finds is guaranteed to be approximately uniformly 
 
 If the sampler finds a satisfying assignment to the variables, we can then translate those variables back to the levels they represent. For our Stroop example, this means we will get assignments to the 16 boolean variables, 4 of them for each trial. These will determine the values of each of the trials, and because we have satisfied all the necessary constraints, results in a valid ordering of the trials.
 
-We'll revisit this example in chapter 7 to see an end-to-end encoding of the Stroop experiment, as well as the sequences produced by SweetPea. 
+We'll revisit this example in chapter 7 to see an end-to-end encoding of the Stroop experiment, as well as the sequences produced by SweetPea.
