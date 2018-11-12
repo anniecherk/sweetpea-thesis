@@ -15,7 +15,7 @@ We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now
 
 Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue.
 
-Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli. Often the ideal goal is to \emph{fully cross} all of the factors to produce all possible combinations of stimuli, but sometimes factors are left out of the full crossing. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing.
+Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli. Often the ideal goal is to \emph{fully cross} all of the factors to produce all possible combinations of stimuli. Sometimes factors are left out of the full crossing. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing.
 
 Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and pink) and dark colors (like navy and maroon).
 
@@ -37,7 +37,7 @@ More generally, new experiments may need to define relationships between levels 
 
 \subsection{Experimental Design and Balancing}
 
-Experiments which include every possible combination of levels are \emph{fully crossed} designs. Fully crossings are desirable because they allow the researcher to test the full space of possible stimuli.
+Experiments which include every possible combination of levels are fully crossed designs. Fully crossings are desirable because they allow the researcher to test the full space of possible stimuli.
 
 Sometimes, however, an experiment is either too large or too small. An experiment can be too large if it has too many elements in the full crossing because there are limits on how many tasks a subject can perform in a single session reliably. If an experiment is too large it can either be restated as a full crossing of only a subset of the factors (with the non-crossed factors being assigned at random, with uniform probability), or it can be divided across subjects or across experimental sessions. An experiment can be too small if the full crossing has too few stimuli to reliably draw conclusions. In this case, the experiment can either be multiple full crossings back-to-back, or the contents of multiple full crossings combined into a larger experimental block.
 
@@ -77,9 +77,16 @@ In the resulting experimental sequence, exactly one choice of level is selected 
 
 Nested levels are handled in exactly the same way- the nesting is just a way to reference a grouping in the high-level representation. This is useful because it can be used to talk about relationships between groups, ie, in constraints. At the boolean representation level, however, these groupings are irrelevant and the structure is flattened.
 
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_windows}}
+    \caption{Windows define the scope of relationships between trials.}%
+    \label{fig:windows}%
+\end{figure}
+
+
 \subsection{Deriving Levels with Windows}
 
-How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window. See the diagram [DIAGRAM].
+How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window. We have shorthands for two common window sizes: "WithinTrial" windows, which are used to define new properties based on properties of each individual trial, and "Transition" windows, which are used to define properties based on each consecutive pair of trials. See \figref{windows} for an illustration.
 
 Consider the transition relationship, which for a given factor specifies whether each following trial has the same value for that factor (a repetition) or a different value (a switch). We will represent this relationship as a new, derived, factor. This factor has two levels: one level which indicates that the following stimuli was a repetition, the other that it was a switch. What are the parameters for the window for this relationship? Because we consider two trials at a time, and want to consider all pairs of consecutive trials, the width is two, and the stride is one.
 
@@ -113,7 +120,7 @@ transitionFactor = Factor("congruent?", [repeat_level, switch_level])
 
 \end{verbatim}
 
-Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is \emph{congruent}, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a WithinTrial window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
+Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is congruent, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a WithinTrial window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
 
 \begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
@@ -130,15 +137,11 @@ congruenceFactor = Factor("congruent?", [con_level, inc_level])
 
 \end{verbatim}
 
-Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on  TODO clarify. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
+Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 
-Once we've described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The \emph{design} of the experiment is the specification of factors represent a trial. To specify the set of trials in the experiment we need to specify the \emph{crossing} of the design.
-
-A common crossing which SweetPea supports is a \emph{full crossing}. A full crossing consists of exactly one instance of every possible trial. For the small Stroop experiment this means four trials, with one instance each of: (red ink, red text), (red ink, blue text), (blue ink, red text), (blue ink, blue text). Another supported crossing is a variation of a full crossing which is each instance appears exactly $k$ times instead of exactly once. A reason to exclude a factor from a design is to exclude it from the full crossing.
-
-In a full crossing, each of the levels is \emph{balanced} with respect to all of the other levels; they all appear equally frequently. An experiment may additionally specify other levels which must be balanced, including derived levels. For example, we may wish to balance the congruent and incongruent levels.
+Once we've described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The design of the experiment is the specification of factors represent a trial. To specify the set of trials in the experiment we need to specify the crossing of the design. As mentioned before, a full crossing is commonly, but not always, used.
 
 The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experiemental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
 
