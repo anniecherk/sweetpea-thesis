@@ -57,29 +57,29 @@ The version of the SweetPea language we'll discuss is embedded in Python, so use
 First, we represent the factors directly as a list of levels:
 
 %\begin{code}
-\begin{lstlisting} 
+\begin{verbatim} 
 ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
-\end{lstlisting}
+\end{verbatim}
 %\end{code}
 
 Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same:
 
-\begin{lstlisting}
+\begin{verbatim}
 k = 2
 constraints = [NoMoreThanKInARow(k, ("text", "red")), NoMoreThanKInARow(k, ("text", "blue"))]
-\end{lstlisting}
+\end{verbatim}
 
 Having specified the factors and the constraints over those factors, we can now specify the rest of the experimental design:
 
-\begin{lstlisting}
+\begin{verbatim}
 design = [ink_color, text]
 crossing = design
 
 experiment = full_crossing(design, crossing, constraints)
 
 synthesize_trials(experiment)
-\end{lstlisting}
+\end{verbatim}
 
 In this example, the design and the full crossing are the same, though that doesn't need to always be the case. We specify the experiment to be the full crossing, but more generally we can construct experiments out of multiple "blocks" of crossings. The call to synthesize\_trials translates the experiment to a boolean formula representation and calls the SAT sampler.
 

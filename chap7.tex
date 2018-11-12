@@ -1,34 +1,113 @@
-\chapter{Compiling Stroop in Excrutiating Detail}
+\chapter{Stroop End-to-End}
 
 This chapter introduces no new material, but instead collects the parts of the running example described in chapters 4 through 6 to provide an end-to-end view of running a simple experiment in SweetPea. We will then also look at a distribution of solutions provided by SweetPea.
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Stroop in SweetPea}
+\paragraph*{Stroop in SweetPea}
 
-- example code listing of small w/ congruence in full crossing
+Here is the full code listing for a simple Stroop experiment written in SweetPea:
 
+%\begin{lstlisting}
+\begin{verbatim}
+import operator as op
+
+from sweetpea import *
+
+color = Factor("color", ["red", "blue"])
+text  = Factor("text",  ["red", "blue"])
+
+conLevel  = DerivedLevel("con", WithinTrial(op.eq, [color, text]))
+incLevel  = DerivedLevel("inc", WithinTrial(op.ne, [color, text]))
+conFactor = Factor("congruent?", [conLevel, incLevel])
+
+design       = [color, text, conFactor]
+crossing     = [color, text]
+
+k = 1
+constraints = [NoMoreThanKInARow(k, ("congruent?", "con"))]
+
+block        = fully_cross_block(design, crossing, constraints)
+
+experiments  = synthesize_trials(block)
+
+print_experiments(block, experiments)
+\end{verbatim}
+%\end{lstlisting}
+
+
+\paragraph*{Compiling Stroop to CNF}
+
+For each trial, each level is allocated a boolean variable which will represent whether or not that level is selected:
+
+\begin{verbatim}
+----------------------------------------------
+|   Trial |  color   |   text   | congruent? |
+|       # | red blue | red blue |  con  inc  |
+----------------------------------------------
+|       1 |  1   2   |  3   4   |   5    6   |
+|       2 |  7   8   |  9   10  |  11    12  |
+|       3 | 13   14  | 15   16  |  17    18  |
+|       4 | 19   20  | 21   22  |  23    24  |
+----------------------------------------------
+\end{verbatim}
+
+The experimental design is then translated into a list of constraints encoded as a boolean formula involving those 24 variables.
+
+These constraints include:
+
+- consistency constraints which ensure that exactly one level of each trial is selected. Specifically this ensures that exactly one of (1, 2), (3, 4), (5, 6), (7, 8), etc are true at a time.
+
+- full-crossing constraints which ensure that the result has exactly one of each state in the full crossing on these levels. These are encoded as "counting constraints" produced by the popcount circuit encoding described in Chapter 6.
+
+- constraints which ensure that the congruency derivation matches the derivation function; for instance, this means that 5 is true iff (1 and 3) are true, or (2 and 4) are true.
+
+\paragraph*{Synthesizing an Experimental Sequence}
+
+TODO: real DIMACS file
+
+The full set of constraints is encoded in the DIMACS file provided in the appendix. The full file has TODO variables, and TODO clauses; for context the first few lines of the file look like:
+
+\begin{verbatim}
+p cnf 5 17
+-5 -1 -2 3 0
+-5 -1 2 -3 0
+...
+\end{verbatim}
+
+When we run this through Unigen, we will get a satisfying assignment, such as:
+
+\begin{verbatim}
+s SATISFIABLE
+v -1 2 3 -4 -5 6 -7 8 -9 10 11 -12 13 -14 -15 16 -17 18 19 -20 21 -22 23 -24 ... 0
+\end{verbatim}
+
+To understand what this corresponds to, let's align the variables with the values they represent:
+
+\begin{verbatim}
+-------------------------------------------------
+|   Trial |  color    |   text    | congruent?  |
+|       # | red  blue | red  blue |  con   inc  |
+-------------------------------------------------
+|       1 | -1    2   |  3    -4  |   -5    6   |
+|       2 | -7    8   |  -9   10  |   11   -12  |
+|       3 | 13   -14  | -15   16  |  -17    18  |
+|       4 | 19   -20  |  21  -22  |   23   -24  |
+-------------------------------------------------
+\end{verbatim}
+
+SweetPea performs the mapping back to the human-readable factor and level names specified by the user, and outputs the following output:
+
+\begin{verbatim}
+color blue | text red  | congruent? inc
+color blue | text blue | congruent? con
+color red  | text blue | congruent? inc
+color red  | text red  | congruent? con
+\end{verbatim}
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Compiling Stroop to CNF}
 
-- show how the high level constraints get translated to low level constraints
-(ie, a list: color one hot constraints, text one hot constraints, derivations, state constraints: show a diagram for the popcount circuit which is generated)
-
-- show full DIMACS file
-
-%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-\section{Synthesizing an Experimental Sequence}
-
-- show input to unigen and output
-
-- show how that output is translated back to human-readable
-
-%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-\section{Verifying the Uniformity Guarantee}
+\paragraph*{Verifying the Uniformity Guarantee}
 
 - run it a bunch and histogram results

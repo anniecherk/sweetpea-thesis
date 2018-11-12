@@ -2,7 +2,7 @@
 
 \chapter{SweetPea Language}
 
-SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT Samplers by creating a wormhole: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea translates that high-level specification into an enormous low-level boolean formula. The SweetPea runtime then passes the SAT Sampler UNIGEN that formula, and translates the low-level assignments into a high-level experimental sequence which satisfies the design. That experimental sequence is guaranteed to be approximately as likely as any other sequences which fulfills the design, reassuring scientists that they did not accidentally introduce bias because of the way the sequence was constructed.
+SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT samplers by creating a wormhole: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea translates that high-level specification into an enormous low-level boolean formula. The SweetPea runtime then passes the SAT sampler Unigen that formula, and translates the low-level assignments into a high-level experimental sequence which satisfies the design. That experimental sequence is guaranteed to be approximately as likely as any other sequences which fulfills the design, reassuring scientists that they did not accidentally introduce bias because of the way the sequence was constructed.
 
 In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter-- experimental designs consist of trials described in terms of factors and levels, and constraints and relationships over those trials, described here in terms of windows and derivation functions, and counting and balancing constraints. Finally, the full experiment is described in terms of a design, a crossing and experimental blocks. Here we'll look at a variety of experiments which motivate these various features, and the high-level language we provide to describe those experiments. In the next chapter we'll take a close look at how these features are efficiently encoded into a boolean formula.
 
@@ -68,14 +68,14 @@ Now that we've seen a range of experiments that we wish to represent, let's see 
 \subsection{Factors and Levels}
 Factors have names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
 
-\begin{lstlisting}
+\begin{verbatim}
 example_factor = ("example_name", ["example_level"])
 boolean_factor = ("booleans", [False, True])
 text      = ("text",      ["red", "blue"])
 light_colors = ("light_colors", ["pink", "aqua"])
 dark_colors = ("dark_colors", ["navy", "maroon"])
 ink_color = ("ink_color", [light_colors, dark_colors])
-\end{lstlisting}
+\end{verbatim}
 
 In the resulting experimental sequence, exactly one choice of level is selected per trial. Internally, the experimental sequences is represented as [TODO DIAGRAM] a list of trials, where each trial is represented as a list all possible levels. There are multiple possible encodings, but the one we chose here is a "one-hot" encoding, where each level is a boolean variable which indicates whether or not it is chosen. All the boolean variables corresponding to levels of a single factor can then have an additional constraint applied that exactly one must be true. This has the effect of "chosing" one level for every factor in the trial, thereby specifying the trial. Because we do this for every trial, a satisfying assignment to these constraints represents a valid experimental sequence. See [diagram] for an example, and see Chater 6 for a more detailed discussion on the trade-offs of the choice of this, and other, encodings.
 
@@ -91,12 +91,12 @@ Consider the transition relationship, which for a given factor specifies whether
 
 Given this conceptual window, the user can then provide a function for each level of the derived factor which specifies, based on the values of the levels which are "in scope" in the window, whether the derived level is selected or not. For the transition example, this may look like:
 
-\begin{lstlisting}
+\begin{verbatim}
 def repetition(ink_colors):
   if ink_colors[0] == ink_colors[1]:
     return True
   return False
-\end{lstlisting}
+\end{verbatim}
 
 The repetition function takes a list of ink colors. Because we're considering all consecutive pairs of trials, the window size is two, so the length of the ink colors list is also two. Conceptually, this function will be applied to all consecutive pairs of trials and report whether those trials are repeat or not.
 
@@ -104,7 +104,7 @@ We can use this repetition function to define a new pair of levels. Recall that 
 
 Putting it all together, these derived levels are represented in SweetPea as:
 
-\begin{lstlisting}
+\begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
 
@@ -117,11 +117,11 @@ repeat_level  = DerivedLevel("rep", Transition(repetition, [ink_color, ink_color
 switch_level  = DerivedLevel("swi", Transition(repetition, [ink_color, ink_color], False))
 transitionFactor = Factor("congruent?", [repeat_level, switch_level])
 
-\end{lstlisting}
+\end{verbatim}
 
 Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is \emph{congruent}, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a WithinTrial window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
 
-\begin{lstlisting}
+\begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
 
@@ -134,7 +134,7 @@ con_level  = DerivedLevel("rep", WithinTrial(congruent, [ink_color, ink_color]))
 inc_level  = DerivedLevel("swi", WithinTrial(congruent, [ink_color, ink_color], False))
 congruenceFactor = Factor("congruent?", [con_level, inc_level])
 
-\end{lstlisting}
+\end{verbatim}
 
 Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on  TODO clarify. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
