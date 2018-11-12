@@ -13,8 +13,6 @@ We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now
 
 \subsection{Descriptions of Stimuli}
 
-TODO diagrams
-
 Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue.
 
 Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli. Often the ideal goal is to \emph{fully cross} all of the factors to produce all possible combinations of stimuli, but sometimes factors are left out of the full crossing. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing.
@@ -26,8 +24,6 @@ Sometimes researchers may want to define factors with levels sampled from a cont
 \subsection{Ordering Constraints}
 
 Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if you are testing whether the presence of a certain level effects the subject's reaction time, you need control over when that level occurs and how often it occurs in relation to other levels. More generally, you need to be able to constrain the presence or absense of relationships which you define over the levels. Since levels can be grouped into arbitrary sub-levels, you should more generally be able to specify constraints on relationships over the sub-levels.
-
-TODO: about diagrams
 
 One example of such a relationship is a \emph{transition} constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). A common type of transition constraint is the specification that a certain level shouldn't appear more than k-times in a row.
 
@@ -71,19 +67,17 @@ Factors have names, and a possibly nested list of levels, each of which also has
 \begin{verbatim}
 example_factor = ("example_name", ["example_level"])
 boolean_factor = ("booleans", [False, True])
-text      = ("text",      ["red", "blue"])
-light_colors = ("light_colors", ["pink", "aqua"])
-dark_colors = ("dark_colors", ["navy", "maroon"])
+text           = ("text",      ["red", "blue"])
+light_colors   = ("light_colors", ["pink", "aqua"])
+dark_colors    = ("dark_colors", ["navy", "maroon"])
 ink_color = ("ink_color", [light_colors, dark_colors])
 \end{verbatim}
 
-In the resulting experimental sequence, exactly one choice of level is selected per trial. Internally, the experimental sequences is represented as [TODO DIAGRAM] a list of trials, where each trial is represented as a list all possible levels. There are multiple possible encodings, but the one we chose here is a "one-hot" encoding, where each level is a boolean variable which indicates whether or not it is chosen. All the boolean variables corresponding to levels of a single factor can then have an additional constraint applied that exactly one must be true. This has the effect of "chosing" one level for every factor in the trial, thereby specifying the trial. Because we do this for every trial, a satisfying assignment to these constraints represents a valid experimental sequence. See [diagram] for an example, and see Chater 6 for a more detailed discussion on the trade-offs of the choice of this, and other, encodings.
+In the resulting experimental sequence, exactly one choice of level is selected per trial. Internally, the experimental sequences is represented as a list of trials, where each trial is represented as a list all possible levels. There are multiple possible encodings, but the one we chose here is a "one-hot" encoding, where each level is a boolean variable which indicates whether or not it is chosen. All the boolean variables corresponding to levels of a single factor can then have an additional constraint applied that exactly one must be true. This has the effect of "chosing" one level for every factor in the trial, thereby specifying the trial. Because we do this for every trial, a satisfying assignment to these constraints represents a valid experimental sequence. See [diagram] for an example, and see Chater 6 for a more detailed discussion on the trade-offs of the choice of this, and other, encodings.
 
 Nested levels are handled in exactly the same way- the nesting is just a way to reference a grouping in the high-level representation. This is useful because it can be used to talk about relationships between groups, ie, in constraints. At the boolean representation level, however, these groupings are irrelevant and the structure is flattened.
 
 \subsection{Deriving Levels with Windows}
-
-TODO COUNTING CONSTRAINTS
 
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window. See the diagram [DIAGRAM].
 
@@ -137,12 +131,6 @@ congruenceFactor = Factor("congruent?", [con_level, inc_level])
 \end{verbatim}
 
 Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on  TODO clarify. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
-
-
-- why is this amenable to SAT? we've got discrete boolean elements whose state depends only upon the state of other boolean elements.
-
-- two options: you can either define a factor with a partition (levels are "where the func is true" and "where the func is false") or by defining and combining levels
-
 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 

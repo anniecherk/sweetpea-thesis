@@ -11,9 +11,11 @@ A boolean formula consists of boolean variables combined using boolean operators
 SAT solvers typically process boolean formulas in CNF. This is partially because they are amenable to the search strategies that solvers commonly employ while searching for satisfying assignments, and partially because there is an efficient translation from a boolean formula in any form to the CNF canonical form.
 
 More specifically, solvers typically process boolean formulas in the DIMACS CNF form. In the DIMACS convention, boolean variables are denoted by their index, and negation is denoted by a minus sign. This means that a formula like (A or B) and (C or not D) is represented as (1 or 2) and (3 or -4). This index based renaming is very convinient as a convention for generating fresh variable names-- you just need to increment the variable counter to get a fresh variable. Each or-clause is written on an individual line, and every term within the or-clause is written as an element of a list; each list is terminated with the number 0. Finally, each formula also has a header which clues the consumer to the number of variables and clauses in formula. The full DIMACS CNF specification of the example in this paragraph is:
+\begin{verbatim}
 p cnf 4 2
 1, 2, 0
 3, -4, 0
+\end{verbatim}
 
 This specification is the langauge required to leverage the awesome power of SAT samplers and solvers, but it is clearly not amemable to being manually specified by human hands for anything but the most toy examples. That is why SweetPea provides a high-level domain-specific interface which compiles to these low-level specifications. An interesting aspect of the translation is ensuring that the encoding is efficeint: that is, polynomial in the number of number of variables and clauses with respect to the constraint size.
 

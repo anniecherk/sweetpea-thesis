@@ -5,19 +5,26 @@
 
 SweetPea is a computation tool for pyschologists. More specifically, it is a domain specific language, and even more specifically, it is a solver-aided language. SweetPea attempts to solve a computationally hard problem: producing a solution to a set of constraints, such that that solution is as likely as any other solution. To the best of our knowledge, SweetPea is the only system to address this specific problem, however there is a large body of work related to each of these concepts. Here we present previous work on computational tools for psychology, domain specific and solver aided languages, and on working in combinatorial search spaces.
 
-\paragraph*{Psychology Toolboxes}
+\paragraph*{Psychology Tools, Experimental Design \& Replicability}
 
-- psyScope \cite{cohen1993psyscope}
+There are many computational tools used by psychologists, however, they automate stimulus presentation for running experiments, not experimental design. Some popular toolboxes include PsyScope \cite{cohen1993psyscope} (now called E-Prime), PsychoPy \cite{mathot2012opensesame}, OpenSesame \cite{peirce2009generating}, Presentation and PsychToolBox. PsyNeuLink is a tool for running computational models on experimental tasks. All of these tools are helpful for automating psychology experiments, however they all fill a different role than SweetPea: ideally SweetPea would easily interface with these tools to pipeline experiments from their design to their execution.
 
-- psychoPy \cite{mathot2012opensesame}
+- Myung, J. I., \& Pitt, M. A. (2009). Optimal experimental design for model discrimination. Psychological review, 116(3), 499.
 
-- OpenSesame \cite{peirce2009generating}
+- Pashler, H., \& Wagenmakers, E. J. (2012). Editors’ introduction to the special section on replicability in psychological science: A crisis of confidence?. Perspectives on Psychological Science, 7(6), 528-530.
 
-\paragraph*{Reproducibility Crisis}
+- Pashler, H., \& Harris, C. R. (2012). Is the replicability crisis overblown? Three arguments examined. Perspectives on Psychological Science, 7(6), 531-536.
 
-- TODO: surely something goes here
+- Simons, D. J. (2014). The value of direct replication. Perspectives on Psychological Science, 9(1), 76-80.
 
-\section{Domain Specific Languages}
+- Schmidt, F. L., \& Oh, I. S. (2016). The crisis of confidence in research findings in psychology: Is lack of replication the real problem? Or is it something else?. Archives of Scientific Psychology, 4(1), 32.
+
+- Maxwell, S. E., Lau, M. Y., \& Howard, G. S. (2015). Is psychology suffering from a replication crisis? What does “failure to replicate” really mean?. American Psychologist, 70(6), 487.
+
+- Stroebe, W. (2016). Are most published social psychological findings false?. Journal of Experimental Social Psychology, 66, 134-144.
+
+
+\paragraph*{Domain Specific Languages}
 
 A domain specific language is a programming interface designed to express a specific set of problems, in contrast to a general programming language. There are so many domain specific languages, what do I even say here.
 
@@ -34,7 +41,7 @@ SweetPea is an interface to the SAT sampler Unigen. The benefit of Unigen is it 
 - hyperkernel: co-designing a language and the verification
 
 
-\section{Combinatorial Search Spaces}
+\paragraph*{Combinatorial Search Spaces}
 
 Why does SweetPea need to use a SAT-sampler? Using a SAT-sampler is like bringing a nuke to a knife fight; if a more straight-forward solution was tractable, it would be much simpler, faster, and more maintainable to use a simple solution.
 
@@ -44,13 +51,13 @@ The first straight-forward solution is to try a random element in the search spa
 
 The other simpler solution is to generate all of the valid elements, and then choose uniformly among them. In practice, we also found this approach to be intractable. While the space of solutions was sparce in the search space, it was also far too large to exhaustively generate.
 
-The simplest possible solution, and the one used in practice today by psychologists, is to generate the experimental sequence one trial at a time, backtracking when an assignment is made which violates the constraints. Unfortunantly this approach does not produce uniformly probable solutions. TODO diagram. Similarly, sampling methods like MCMC would also be able to tractably find solutions, but wouldn't provide any guarantee about their distribution.
+The simplest possible solution, and the one used in practice today by psychologists, is to generate the experimental sequence one trial at a time, backtracking when an assignment is made which violates the constraints. Unfortunantly this approach does not produce uniformly probable solutions. Similarly, sampling methods like MCMC would also be able to tractably find solutions, but wouldn't provide any guarantee about their distribution.
 
 For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space.
 
 SweetPea uses the SAT-sampler Unigen because Unigen implements an approximate sampling method with statistical guarantees. Approximate sampling is a compromise: it allows us to gain traction on the otherwise untractably large space, while none-the-less maintaining strong statistically rigerous guarantees of the distribution of solutions. We use Unigen because implementing the underlying sampling method to work well in practice is complicated and an art; it seemed wiser to rely on an existing implementation rather than re-engineer it. This decision, however, to outsource searching the space to Unigen, came at the cost of encoding the domain specific constraints as a boolean formula. The decision to have SweetPea translate from the high-level domain specific semantics to SAT, as opposed to any other possible search space encoding, is an engineering decision; it comes directly from deciding it was better to rely on Unigen rather than reimplement parts of it's strategy. It is concievable that in the future, SweetPea would be able to compile to other backend representation, amenable to other search strategies.
 
-\subsection{Uniform Sampling}
+\paragraph*{Uniform Sampling}
 
 \cite{meel2016constrained}
 

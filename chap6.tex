@@ -63,10 +63,12 @@ Let's look at some examples. Lets imagine adding 1 + 1; this means that the full
 For the entire formula to be true, each of the and clauses must be true. This trivially means that the assignment for a is true, and b is true. Looking at the more interesting clauses, we know s is true iff (a xor b). a xor b is False when both a and b are true, so s must be false for that clause to be true. We also know that c is true iff (a and b), so c must also be true.
 
 This means that for this input, the solver would give us the satisfying assignment:
+\begin{verbatim}
 a is true
 b is true
 s is false
 c is true
+\end{verbatim}
 
 See \figref{one_plus_one_sol} for the solution from the SAT solver given the query in \figref{one_plus_one_cnf}.
 
