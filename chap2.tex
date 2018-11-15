@@ -2,8 +2,7 @@
 
 \chapter{SweetPea Overview}
 
-
-SweetPea is a software system for creating replicable, statistically robust experimental designs. SweetPea consists of a high-level language and a runtime. The language provides primitives that closely match the terms that scientists use to describe their experimental designs. The runtime synthesizes an experimental sequence which is guaranteed to not prefer any valid solution over any other. SweetPea provides this guarantee by representing the experiment as a boolean formula and interfacing with a SAT sampler; this constrains the language to be amenable to being translated into a boolean formula.
+SweetPea is a software system for creating replicable, statistically robust experimental designs. SweetPea consists of a high-level language and a runtime. The language provides primitives that closely match the terms that scientists use to describe their experimental designs. The runtime synthesizes an experimental sequence which is guaranteed to not prefer any valid solution over any other. SweetPea provides this guarantee by representing the experiment as a boolean formula and interfacing with a SAT sampler; this constrains the high-language to be amenable to being translated into a boolean formula.
 
 The ultimate vision for SweetPea is for the researcher to declaratively describe the analysis they wish to perform, and for the system to automatically derive the constraints required to produce an experiment for the desired analysis. Further, the sytems would ideally interactively iterate with the user to let them explore exactly what they wanted to analyze, and how choices they make effect the feasibility of the experimental design.
 
@@ -63,7 +62,7 @@ text      = ("text",      ["red", "blue"])
 \end{verbatim}
 %\end{code}
 
-Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same:
+Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same. \begin{verbatim} NoMoreThanKInARow \end{verbatim} is a constraint constructor function in SweetPea, which allows us to declaratively specify the constraint:
 
 \begin{verbatim}
 k = 2
@@ -103,4 +102,4 @@ The solution that the sampler finds is guaranteed to be approximately uniformly 
 
 If the sampler finds a satisfying assignment to the variables, we can then translate those variables back to the levels they represent. For our Stroop example, this means we will get assignments to the 16 boolean variables, 4 of them for each trial. These will determine the values of each of the trials, and because we have satisfied all the necessary constraints, results in a valid ordering of the trials.
 
-We'll revisit this example in chapter 7 to see an end-to-end encoding of the Stroop experiment, as well as the sequences produced by SweetPea.
+We'll revisit this example in Chapter 7 to see an end-to-end encoding of the Stroop experiment, as well as the sequences produced by SweetPea.

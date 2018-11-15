@@ -43,19 +43,7 @@ SweetPea is an interface to the SAT sampler Unigen. The benefit of Unigen is it 
 
 \paragraph*{Combinatorial Search Spaces}
 
-Why does SweetPea need to use a SAT-sampler? Using a SAT-sampler is like bringing a nuke to a knife fight; if a more straight-forward solution was tractable, it would be much simpler, faster, and more maintainable to use a simple solution.
 
-Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of ~120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
-
-The first straight-forward solution is to try a random element in the search space, and see if that ordering satisfies the constraints. For realistic experiments, we found this approach to be intractable-- the set of solutions is sparce in the search space.
-
-The other simpler solution is to generate all of the valid elements, and then choose uniformly among them. In practice, we also found this approach to be intractable. While the space of solutions was sparce in the search space, it was also far too large to exhaustively generate.
-
-The simplest possible solution, and the one used in practice today by psychologists, is to generate the experimental sequence one trial at a time, backtracking when an assignment is made which violates the constraints. Unfortunantly this approach does not produce uniformly probable solutions. Similarly, sampling methods like MCMC would also be able to tractably find solutions, but wouldn't provide any guarantee about their distribution.
-
-For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space.
-
-SweetPea uses the SAT-sampler Unigen because Unigen implements an approximate sampling method with statistical guarantees. Approximate sampling is a compromise: it allows us to gain traction on the otherwise untractably large space, while none-the-less maintaining strong statistically rigerous guarantees of the distribution of solutions. We use Unigen because implementing the underlying sampling method to work well in practice is complicated and an art; it seemed wiser to rely on an existing implementation rather than re-engineer it. This decision, however, to outsource searching the space to Unigen, came at the cost of encoding the domain specific constraints as a boolean formula. The decision to have SweetPea translate from the high-level domain specific semantics to SAT, as opposed to any other possible search space encoding, is an engineering decision; it comes directly from deciding it was better to rely on Unigen rather than reimplement parts of it's strategy. It is concievable that in the future, SweetPea would be able to compile to other backend representation, amenable to other search strategies.
 
 \paragraph*{Uniform Sampling}
 
