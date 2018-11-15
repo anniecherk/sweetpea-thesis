@@ -66,7 +66,8 @@ Next, let's represent the constraint that there should be no repetitions of stim
 
 \begin{verbatim}
 k = 2
-constraints = [NoMoreThanKInARow(k, ("text", "red")), NoMoreThanKInARow(k, ("text", "blue"))]
+constraints = [NoMoreThanKInARow(k, ("text", "red")),
+               NoMoreThanKInARow(k, ("text", "blue"))]
 \end{verbatim}
 
 Having specified the factors and the constraints over those factors, we can now specify the rest of the experimental design:
@@ -98,7 +99,9 @@ We have multiple strategies for encoding constraints, but for now let's say we h
 
 Once we've created this boolean formula which represents all the relationships which the levels must fulfill, we can pass this formula to the SAT sampler. If there exists an assignment of the boolean variables which satisfies all the constraints, the sampler will return one such assignment. If there are no satisfying assignments the sampler will state that the formula is unsatisfiable.
 
-The solution that the sampler finds is guaranteed to be approximately uniformly probable in the space of all possible solutions. We currently use the SAT sampler Unigen, but providing this guarantee is the goal of all uniform sampling. The sampler provides this goal by using a special family of hash functions called universal hash functions. For our Stroop example, this means that each of the 8 valid orderings in \figref{valid_seqs} should be approximately equally likely.
+The solution that the sampler finds is guaranteed to be approximately uniformly probable in the space of all possible solutions. We currently use the SAT sampler Unigen which uses universal hash functions to find solutions in a principled way, but providing this guarantee is the goal of all uniform sampling. Unigen guarantees that it will return a satisfying assignment with approximately uniform probability of choosing any satisfying assignment to a given boolean formula.
+
+How does this guarantee, which is provided at the level of boolean variables, translate to the guarantee we want, at the level of the experimental design? As we'll discuss further in Chapter 4, so long as every boolean formula uniquely describes a single experimental design, we know that the satisfying experiemental sequence is approximately uniformly probable among all satisfying experimental sequences. For our Stroop example, this means that each of the 8 valid orderings in \figref{valid_seqs} should be approximately equally likely.
 
 If the sampler finds a satisfying assignment to the variables, we can then translate those variables back to the levels they represent. For our Stroop example, this means we will get assignments to the 16 boolean variables, 4 of them for each trial. These will determine the values of each of the trials, and because we have satisfied all the necessary constraints, results in a valid ordering of the trials.
 
