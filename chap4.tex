@@ -7,17 +7,15 @@ SweetPea achieves its goal of creating unbiased experimental sequences from high
 In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter-- experimental designs consist of trials described in terms of factors and levels, and constraints and relationships over those trials, described here in terms of windows and derivation functions, and counting and balancing constraints. Finally, the full experiment is described in terms of a design, a crossing and experimental blocks. Here we'll look at a variety of experiments which motivate these various features, and the high-level language we provide to describe those experiments. In the next chapter we'll take a close look at how these features are efficiently encoded into a boolean formula.
 
 
-\section{Components of an Experiment}
+\section{Experimental Design Wishlist}
 
-We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now let's look at the range of experiments we wish to model, and how our representations of these experiments are amenable to SAT.
+We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now let's look at the range of experiments we wish to model.
 
 \subsection{Descriptions of Stimuli}
 
-Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue.
+Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue. Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli.
 
-Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli. Often the ideal goal is to \emph{fully cross} all of the factors to produce all possible combinations of stimuli. Sometimes factors are left out of the full crossing. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing.
-
-Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and pink) and dark colors (like navy and maroon).
+Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and aqua) and dark colors (like navy and maroon).
 
 Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the research manually discretizing the continoum into several discrete values. This case is particularly challenging for SweetPea because it is difficult to phrase sampling a continious distribution as a boolean formula; for more thought on how we could better support this see Future Work.
 
@@ -25,11 +23,11 @@ Sometimes researchers may want to define factors with levels sampled from a cont
 
 Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if you are testing whether the presence of a certain level effects the subject's reaction time, you need control over when that level occurs and how often it occurs in relation to other levels. More generally, you need to be able to constrain the presence or absense of relationships which you define over the levels. Since levels can be grouped into arbitrary sub-levels, you should more generally be able to specify constraints on relationships over the sub-levels.
 
-One example of such a relationship is a transition constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). A common type of transition constraint is the specification that a certain level shouldn't appear more than k-times in a row.
+One example of such a relationship is a transition constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). This is an important condition to control for in task-switching experiments because a subject's reaction time may depend on whether they just performed a similar or dissimilar task. An experimenter may wish to specify that a subject experience as many repetition or tasks as task switches.
 
-Another example is a congruence constraint, which specifies whether the levels of different factors are, according to a user-specified metric, complementary or conflicting. A congruence constraint for the Stroop is whether the color of the ink and the text are the same (the word "red" in red ink) or not.
+Another example, which we saw in Chapter 2, is a congruence constraint, which specifies whether the levels of different factors are, according to a user-specified metric, complementary or conflicting. A congruence constraint for the Stroop is whether the color of the ink and the text are the same (the word "red" in red ink) or not.
 
-Another common relationship is a balancing constraint. A pair of levels is balanced if each instance shows up the same number of times; a full crossing of all levels is a fully balanced experiment.
+Another relationship is a balancing constraint. A pair of levels is balanced if each instance shows up the same number of times; a full crossing of all levels is a fully balanced experiment. Currently the only mechanism for balancing in SweetPea is including factors in a full-crossing.
 
 Constraints can also be defined in terms of other constraints. For instance, in the Stroop test one may want to balance the number of congruent and incongruent levels, or to balance the transitions between congruent and incongruent levels.
 
@@ -37,21 +35,27 @@ More generally, new experiments may need to define relationships between levels 
 
 \subsection{Experimental Design and Balancing}
 
-Experiments which include every possible combination of levels are fully crossed designs. Fully crossings are desirable because they allow the researcher to test the full space of possible stimuli.
+Experiments which include every possible combination of levels are fully crossed designs. Full crossings are desirable because they allow the researcher to test the full space of possible stimuli.
 
-Sometimes, however, an experiment is either too large or too small. An experiment can be too large if it has too many elements in the full crossing because there are limits on how many tasks a subject can perform in a single session reliably. If an experiment is too large it can either be restated as a full crossing of only a subset of the factors (with the non-crossed factors being assigned at random, with uniform probability), or it can be divided across subjects or across experimental sessions. An experiment can be too small if the full crossing has too few stimuli to reliably draw conclusions. In this case, the experiment can either be multiple full crossings back-to-back, or the contents of multiple full crossings combined into a larger experimental block.
+Sometimes, however, factors either need to be excluded or duplicated to make an experiment feasible. For example, a subject can only reliably be tested for so long before they are tired, so sometimes factors which are deemed to be irrelevant to the control variables and variables of interest are excluded from the full crossing. If an experiment is too large it can either be restated as a full crossing of only a subset of the factors (with the non-crossed factors being assigned at random, with uniform probability), or it can be divided across subjects or across experimental sessions. An experiment can be too small if the full crossing has too few stimuli to reliably draw conclusions. In this case, the experiment can either be multiple full crossings back-to-back, or the contents of multiple full crossings combined into a larger experimental block.
 
 Fully-crossing a design is a form of balancing-- it is the specification that each level occurs as frequently as each other level and that each level occurs once.
 
-Sometimes the constraint of using a full-crossing makes other types of balancing impossible because the levels are over-constrained. Consider, for instance, the Stroop test with 3 different colors instead of two: then it isn't possible to both fully-cross the design and to balance the congruent and incongruent levels. (This is because there are 3 congruent levels, and 6 incongruent levels). One possible desired outcome in this case is for SweetPea to report that an experiment is over-constrained.
+\begin{figure}[t]
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_weighted_crossing}}
+    \caption{Full crossing of a 3 color Stroop experiment. There are more congruent stimuli (along the diagonal) than incongruent stimuli.}%
+    \label{fig:weighted_crossing}%
+\end{figure}
 
-Another alternative is that if balancing the congruent and incongruent levels is more important than a fully-crossed design, then we can instead create a \emph{weighted crossing} instead. In a weighted crossing we can specify that we wish to under-sample certain levels (the incongruent ones in our example) or over-sample other levels (the congruent ones). Weighted crossings also allow us to express the experiments mentioned above, where the full crossing has either too many or too few stimuli to be practical.
+Sometimes the constraint of using a full-crossing makes other types of balancing impossible because the levels are over-constrained. Consider, for instance, the Stroop test with 3 different colors instead of two (as in \figref{weighted_crossing}): then it isn't possible to both fully-cross the design and to balance the congruent and incongruent levels. (This is because there are 3 congruent levels, and 6 incongruent levels). One possible desired outcome in this case is for SweetPea to report that an experiment is over-constrained.
 
-\subsection{Experimental Structure}
+Another alternative is that if balancing the congruent and incongruent levels is more important than a fully-crossed design, then we can instead create a \emph{weighted crossing} instead. In a weighted crossing we can specify that we wish to under-sample certain levels (the incongruent ones in our example) or over-sample other levels (the congruent ones). Weighted crossings also allow us to express the experiments mentioned above, where the full crossing has either too many or too few stimuli to be practical. This desirable, more general crossing specification, is not currently implemented in SweetPea and is further discussed in the Future Work Chapter.
+
+\subsection{Structure of an Experiment}
 
 An experiment is composed of one or more experimental blocks; an experimental block is a sequence of stimuli. Experiments may be organized into blocks for several reasons: there may be prologue or epilogue blocks which set up some condition for the subject, the experiment may be designed to be run in several related sessions, or consist of several sub-experiments.
 
-It is impossible to balance some commonly desired constraints with a single block; for instance, it is not possible to have as many "repeat" transitions as "switch" transitions in the fully-balanced Stroop experiment because there are an even number of stimuli, resulting in an odd number of transitions. This means it's not possible to have as many of one transition as the other.
+It is impossible to balance some commonly desired constraints with a single block; for instance, it is not possible to have as many "repeat" transitions as "switch" transitions in the fully-balanced Stroop experiment because there are an even number of stimuli, resulting in an odd number of transitions. This means it's not possible to have exactly as many of one transition as the other.
 
 There are two approaches to resolving this issue. The first is nearly-balancing the levels: instead of requiring that there are exactly the same number of each level, require that there are the same number plus-or-minus one. The other solution is to create a "throw-away" block with a single stimuli in it which is used to satisfy the transition balancing constraint without being included in the full-crossing constraint.
 
@@ -60,6 +64,8 @@ As mentioned in the previous section, it is also sometimes useful to have multip
 \section{SweetPea Primitives}
 
 Now that we've seen a range of experiments that we wish to represent, let's see how we can represent them in SweetPea. Here we'll look at the high-level encodings we use, and why those encodings are amenable to being represented in SAT. In the next chapter we'll look at the SAT encodings in more detail.
+
+Here is
 
 
 \begin{verbatim}
@@ -72,15 +78,15 @@ CrossingType       = FullyCrossed
 Constraint         = ExactlyKInARow K (FactorName, LevelName)
                    | AtMostKInARow  K (FactorName, LevelName)
                    | AtLeastKInARow K (FactorName, LevelName)
-Factor             = FactorName Listof( LevelName )
+Factor             = FactorName Listof( Level )
                    | FactorName DerivedLevel
 DerivedLevel       = LevelName Window
 Window             = Transition          DerivationFunction
                    | WithInTrial         DerivationFunction
                    | Window Stride Width DerivationFunction
 DerivationFunction = ( Listof( LevelName )... ) -> Boolean
+Level              = <any printable type> | Listof( Level )
 FactorName         = <any printable type>
-LevelName          = <any printable type>
 \end{verbatim}
 
 
@@ -91,11 +97,11 @@ Factors have names, and a possibly nested list of levels, each of which also has
 
 \begin{verbatim}
 example_factor = ("example_name", ["example_level"])
-boolean_factor = ("booleans", [False, True])
-text           = ("text",      ["red", "blue"])
-light_colors   = ("light_colors", ["pink", "aqua"])
-dark_colors    = ("dark_colors", ["navy", "maroon"])
-ink_color = ("ink_color", [light_colors, dark_colors])
+boolean_factor = ("booleans",     [False, True])
+text           = ("text",         ["red", "blue"])
+light_colors   = ("light_colors", ["yellow", "aqua"])
+dark_colors    = ("dark_colors",  ["navy", "maroon"])
+ink_color      = ("ink_color",    [light_colors, dark_colors])
 \end{verbatim}
 
 In the resulting experimental sequence, exactly one choice of level is selected per trial. Internally, the experimental sequences is represented as a list of trials, where each trial is represented as a list all possible levels. There are multiple possible encodings, but the one we chose here is a "one-hot" encoding, where each level is a boolean variable which indicates whether or not it is chosen. All the boolean variables corresponding to levels of a single factor can then have an additional constraint applied that exactly one must be true. This has the effect of "chosing" one level for every factor in the trial, thereby specifying the trial. Because we do this for every trial, a satisfying assignment to these constraints represents a valid experimental sequence. See [diagram] for an example, and see Chater 6 for a more detailed discussion on the trade-offs of the choice of this, and other, encodings.
