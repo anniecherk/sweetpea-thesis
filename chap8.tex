@@ -9,6 +9,39 @@ One possible future direction for SweetPea which is orthogonal to this vision is
 
 This section describes some language features which would facilitate supporting a wider range of experiments.
 
+\paragraph*{Windows on Counting Constraints}
+Currently, counting constraints are specified using the \texttt{AtMostKInARow}, \texttt{ExactlyKInARow} or \texttt{AtLeastKInARow} constructors. These operate over the entire experimental sequence, which is limiting in the constraints they can express. If these constraints were expanded to operate over a window, in the way that derived levels do, they could be used to express a wider range of desired constraints, including more complicated balancing constraints. 
+
+\begin{verbatim}
+Constraint = [AtMost][AtLeast][Exactly]KInARow K (FactorName, LevelName) Window
+\end{verbatim}
+
+\paragraph*{General Case Derivations}
+
+
+
+\paragraph*{Syntactic Sugar}
+One of the examples we saw in Chapter 3 was:
+\begin{verbatim}
+ink_color = ("ink_color", ["red", "blue"])
+text      = ("text",      ["red", "blue"])
+
+def congruent(ink_colors, texts):
+  if ink_colors[0] == texts[0]:
+    return True
+  return False
+
+def incongruent(ink_colors, texts):
+  return not congruent(ink_colors, texts)
+
+con_level  = DerivedLevel("con",
+               WithinTrial(congruent, [ink_color, text]))
+inc_level  = DerivedLevel("inc",
+               WithinTrial(incongruent, [ink_color, text])
+congruenceFactor = Factor("congruent?", [con_level, inc_level])
+\end{verbatim}
+It is common that
+
 \paragraph*{Weighted Crossings}
 It would be useful to have a mechanism to specify a way to over or under sample a full crossing. A usecase for this is a version of the Stroop experiment with 3 colors; in a full crossing there are 3 congruent stimuli, and 6 incongruent stimuli (see \figref{weighted_crossing}). It is well-motivated to want to balance the number of congruent and incongruent stimuli. One can imagine either undersampling the incongruent stimuli (choosing 3 of the 6 with uniform likelihood), or oversampling the congruent stimuli (such that each congruent stimuli occurs twice). More generally, it will be worth spending time in the future investigating more ways of specifying parts of the space of the full crossing.
 

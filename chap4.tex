@@ -27,11 +27,7 @@ One example of such a relationship is a transition constraint, which specifies w
 
 Another example, which we saw in Chapter 2, is a congruence constraint, which specifies whether the levels of different factors are, according to a user-specified metric, complementary or conflicting. A congruence constraint for the Stroop is whether the color of the ink and the text are the same (the word "red" in red ink) or not.
 
-Another relationship is a balancing constraint. A pair of levels is balanced if each instance shows up the same number of times; a full crossing of all levels is a fully balanced experiment. Currently the only mechanism for balancing in SweetPea is including factors in a full-crossing.
-
-Constraints can also be defined in terms of other constraints. For instance, in the Stroop test one may want to balance the number of congruent and incongruent levels, or to balance the transitions between congruent and incongruent levels.
-
-More generally, new experiments may need to define relationships between levels that other existing experiments don't have. SweetPea must have enough flexibility to allow researchers to define these new relationships.
+Constraints can also be defined in terms of other constraints. For instance, in the Stroop test one may want to balance the number of congruent and incongruent levels, or to balance the transitions between congruent and incongruent levels. More generally, experiments expressed in SweetPea may need to define user-specified relationships between levels.
 
 \subsection{Experimental Design and Balancing}
 
@@ -95,16 +91,16 @@ The remaining subsections will discuss this schema, broken up into sections, and
   FactorName         = <any printable type>
 \end{verbatim}
 
-Factors are tuples, specified by factor names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
+Factors are named tuples, specified by factor names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
 
 \begin{verbatim}
-example_factor = ("example_name", ["example_level"])
-boolean_factor = ("booleans",     [False, True])
-numeric_factor = (1234,           [1, 2, 3, 4])
-text           = ("text",         ["red", "blue"])
-light_colors   = ("light_colors", ["yellow", "aqua"])
-dark_colors    = ("dark_colors",  ["navy", "maroon"])
-ink_color      = ("ink_color",    [light_colors, dark_colors])
+example_factor = Factor("example_name", ["example_level"])
+boolean_factor = Factor("booleans",     [False, True])
+numeric_factor = Factor(1234,           [1, 2, 3, 4])
+text           = Factor("text",         ["red", "blue"])
+light_colors   = Factor("light_colors", ["yellow", "aqua"])
+dark_colors    = Factor("dark_colors",  ["navy", "maroon"])
+ink_color      = Factor("ink_color",    [light_colors, dark_colors])
 \end{verbatim}
 
 In the resulting experimental sequence, exactly one choice of level is selected per trial; if a factor has nested levels then the nesting is flattened in the final experimental sequence. Nesting is only useful at the high-level to describe groupings of levels, for instance to be the subject of a constraint.
@@ -179,31 +175,32 @@ ink_color = ("ink_color", ["red", "blue"])
 text      = ("text",      ["red", "blue"])
 
 def congruent(ink_colors, texts):
-  if ink_colors[0] == text[0]:
+  if ink_colors[0] == texts[0]:
     return True
   return False
 
 def incongruent(ink_colors, texts):
   return not congruent(ink_colors, texts)
 
-con_level  = DerivedLevel("congruent",
+con_level  = DerivedLevel("con",
                WithinTrial(congruent, [ink_color, text]))
-inc_level  = DerivedLevel("incongruent",
+inc_level  = DerivedLevel("inc",
                WithinTrial(incongruent, [ink_color, text])
-congruenceFactor = Factor("congruent?", [con_level, inc_level])
-
+congruence_factor = Factor("congruent?", [con_level, inc_level])
 \end{verbatim}
 
 Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. See \figref{windows} for an illustration. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
 \subsection{Counting Constraints}
+SweetPea also provides three counting constraint constructors which let the user constrain levels to appear some number of times. These constructors are also named tuples, which take the number to count to, k, and the level to which apply this constraint. Since individual levels are not directly referenced by variables, the user must specify a tuple of factor name and level name.
+
 \begin{verbatim}
-Constraint         = AtMostKInARow  K (FactorName, LevelName)
-                   | ExactlyKInARow K (FactorName, LevelName)
-                   | AtLeastKInARow K (FactorName, LevelName)
+Constraint         = AtMostKInARow ( K, (FactorName, LevelName) )
+                   | ExactlyKInARow( K, (FactorName, LevelName) )
+                   | AtLeastKInARow( K, (FactorName, LevelName) )
 \end{verbatim}
 
-SweetPea also provides three constraint constructors which let the user constrain levels to appear some number of times. TODO should be over windows.
+The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times. The \texttt{ExactlyKInARow} constraint can be used to explicitly counterbalance levels.
 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 
@@ -219,6 +216,55 @@ CrossingType       = FullyCrossed
 
 Once we've described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The design of the experiment is the specification of factors represent a trial. To specify the set of trials in the experiment we need to specify the crossing of the design. As mentioned before, a full crossing is commonly, but not always, used.
 
+The design is specified explicitly as a list of factors, while the block is built by a constructor which knows how to construct the block based on the crossing type. Each constructor takes two lists of factors, one which represents all the factors which represent a trial (\texttt{design}), and one which represents which factors should be included in the crossing (\texttt{crossing\_factors}). Each trial in the resulting experimental sequence will have a value for factors specified in \texttt{design}.
+
+\begin{verbatim}
+   Block Constructors:
+fully_cross_block( design, crossing_factors, weights )
+multiple_fully_cross_block( design, crossing_factors, weights, numReps )
+\end{verbatim}
+
 The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experiemental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
+
+Finally, to generate the experimental sequence, the user can call \texttt{synthesize\_experiment} which takes an \texttt{experiment} and produces a list of trial specifications.
+
+Putting together all the code snippets in this section, here is a full specification of a simple Stroop experiment in SweetPea:
+
+\begin{verbatim}
+ink_color = ("ink_color", ["red", "blue"])
+text      = ("text",      ["red", "blue"])
+
+def congruent(ink_colors, texts):
+  if ink_colors[0] == texts[0]:
+    return True
+  return False
+
+def incongruent(ink_colors, texts):
+  return not congruent(ink_colors, texts)
+
+con_level  = DerivedLevel("con",
+               WithinTrial(congruent, [ink_color, text]))
+inc_level  = DerivedLevel("inc",
+               WithinTrial(incongruent, [ink_color, text])
+congruence_factor = Factor("congruent?", [con_level, inc_level])
+
+design       = [color, text, conFactor]
+crossing     = [color, text]
+
+constraints = [NoMoreThanKInARow(1, ("congruent?", "con"))]
+
+block        = fully_cross_block(design, crossing, constraints)
+
+experiments  = synthesize_trials(block, 5)
+\end{verbatim}
+
+This experiment will produce an experimental sequence which might look like:
+
+\begin{verbatim}
+color blue | text red  | congruent? inc
+color blue | text blue | congruent? con
+color red  | text blue | congruent? inc
+color red  | text red  | congruent? con
+\end{verbatim}
 
 Having discussed and motivated all of the aspects of the SweetPea language, in the next chapter we'll see how these elements are encoded as a boolean formula.
