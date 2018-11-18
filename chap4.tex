@@ -67,7 +67,7 @@ Now that we've seen a bottom-up description of the sorts of experimental designs
 
 \begin{verbatim}
 Experiment         = Listof( Blocks )
-Block              = Design Crossing Constraints
+Block              = Design Crossing Listof( Constraint )
 Design             = Listof( Factor )
 Crossing           = Listof( Factor ) CrossingType
 CrossingType       = FullyCrossed
@@ -76,42 +76,38 @@ Constraint         = AtMostKInARow  K (FactorName, LevelName)
                    | ExactlyKInARow K (FactorName, LevelName)
                    | AtLeastKInARow K (FactorName, LevelName)
 Factor             = FactorName Listof( Level )
-                   | FactorName DerivedLevel
+                   | FactorName Listof( DerivedLevel )
 DerivedLevel       = LevelName Window
-Window             = Transition          DerivationFunction
-                   | WithInTrial         DerivationFunction
-                   | Window Stride Width DerivationFunction
+Window             = Stride Width DerivationFunction Listof( FactorName )
 DerivationFunction = ( Listof( LevelName )... ) -> Boolean
 Level              = <any printable type> | Listof( Level )
 FactorName         = <any printable type>
 \end{verbatim}
 
-The remaining subsections will discuss this schema, broken up into sections.
+The remaining subsections will discuss this schema, broken up into sections, and document the available constructors.
 
 \subsection{Factors and Levels}
 
 \begin{verbatim}
   Factor             = FactorName Listof( Level )
-                     | FactorName DerivedLevel
+                     | FactorName Listof( DerivedLevel )
   Level              = <any printable type> | Listof( Level )
   FactorName         = <any printable type>
 \end{verbatim}
 
-Factors have names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
+Factors are tuples, specified by factor names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
 
 \begin{verbatim}
 example_factor = ("example_name", ["example_level"])
 boolean_factor = ("booleans",     [False, True])
+numeric_factor = (1234,           [1, 2, 3, 4])
 text           = ("text",         ["red", "blue"])
 light_colors   = ("light_colors", ["yellow", "aqua"])
 dark_colors    = ("dark_colors",  ["navy", "maroon"])
 ink_color      = ("ink_color",    [light_colors, dark_colors])
 \end{verbatim}
 
-In the resulting experimental sequence, exactly one choice of level is selected per trial.
-
-Nested levels are handled in exactly the same way- nesting is just a way to reference a grouping in the high-level representation. In the resulting experimental sequence, nesting is flattened, and exactly one choice of level is selected.
-
+In the resulting experimental sequence, exactly one choice of level is selected per trial; if a factor has nested levels then the nesting is flattened in the final experimental sequence. Nesting is only useful at the high-level to describe groupings of levels, for instance to be the subject of a constraint.
 
 \begin{figure}[t]
     \centerline{\includegraphics[origin=c,width=10cm]{fig_windows}}
@@ -124,13 +120,20 @@ Nested levels are handled in exactly the same way- nesting is just a way to refe
 
 \begin{verbatim}
   DerivedLevel       = LevelName Window
-  Window             = Transition          DerivationFunction
-                     | WithInTrial         DerivationFunction
-                     | Window Stride Width DerivationFunction
+  Window             = Stride Width DerivationFunction Listof( FactorName )
   DerivationFunction = ( Listof( LevelName )... ) -> Boolean
 \end{verbatim}
 
-How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window. We have shorthands for two common window sizes: "WithinTrial" windows, which are used to define new properties based on properties of each individual trial, and "Transition" windows, which are used to define properties based on each consecutive pair of trials.
+How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined derivation functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window.
+
+SweetPea provides constructors for two common window sizes: \texttt{WithinTrial} windows, which are used to define new properties based on properties of each individual trial, and \texttt{Transition} windows, which are used to define properties based on each consecutive pair of trials.
+
+\begin{verbatim}
+  Window Constructors:
+Transition(derivation function, list of factors)
+WithInTrial(derivation function, list of factors)
+Window(stride, width, derivation function, list of factors)
+\end{verbatim}
 
 Consider the transition relationship, which for a given factor specifies whether each following trial has the same value for that factor (a repetition) or a different value (a switch). We will represent this relationship as a new, derived, factor. This factor has two levels: one level which indicates that the following stimuli was a repetition, the other that it was a switch. What are the parameters for the window for this relationship? Because we consider two trials at a time, and want to consider all pairs of consecutive trials, the width is two, and the stride is one.
 
@@ -158,13 +161,18 @@ def repetition(ink_colors):
     return True
   return False
 
-repeat_level  = DerivedLevel("rep", Transition(repetition, [ink_color, ink_color]))
-switch_level  = DerivedLevel("swi", Transition(repetition, [ink_color, ink_color], False))
-transitionFactor = Factor("congruent?", [repeat_level, switch_level])
+def switch(ink_colors):
+  return not repetition(ink_colors)
+
+repeat_level = DerivedLevel("repeat",
+                 Transition(repetition, [ink_color]))
+switch_level = DerivedLevel("switch",
+                 Transition(switch, [ink_color]))
+transition_factor = Factor("congruent?", [repeat_level, switch_level])
 
 \end{verbatim}
 
-Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is congruent, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a WithinTrial window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
+Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is congruent, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a \texttt{WithinTrial} window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
 
 \begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
@@ -175,10 +183,13 @@ def congruent(ink_colors, texts):
     return True
   return False
 
-con_level  = DerivedLevel("rep",
-               WithinTrial(congruent, [ink_color, ink_color]))
-inc_level  = DerivedLevel("swi",
-               WithinTrial(congruent, [ink_color, ink_color], False))
+def incongruent(ink_colors, texts):
+  return not congruent(ink_colors, texts)
+
+con_level  = DerivedLevel("congruent",
+               WithinTrial(congruent, [ink_color, text]))
+inc_level  = DerivedLevel("incongruent",
+               WithinTrial(incongruent, [ink_color, text])
 congruenceFactor = Factor("congruent?", [con_level, inc_level])
 
 \end{verbatim}
