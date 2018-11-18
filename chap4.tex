@@ -195,9 +195,9 @@ Windows allow us to represent, more generally than just transitions and within-t
 SweetPea also provides three counting constraint constructors which let the user constrain levels to appear some number of times. These constructors are also named tuples, which take the number to count to, k, and the level to which apply this constraint. Since individual levels are not directly referenced by variables, the user must specify a tuple of factor name and level name.
 
 \begin{verbatim}
-Constraint         = AtMostKInARow ( K, (FactorName, LevelName) )
-                   | ExactlyKInARow( K, (FactorName, LevelName) )
-                   | AtLeastKInARow( K, (FactorName, LevelName) )
+Constraint = AtMostKInARow ( K, (FactorName, LevelName) )
+           | ExactlyKInARow( K, (FactorName, LevelName) )
+           | AtLeastKInARow( K, (FactorName, LevelName) )
 \end{verbatim}
 
 The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times. The \texttt{ExactlyKInARow} constraint can be used to explicitly counterbalance levels.

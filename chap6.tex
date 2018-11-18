@@ -16,7 +16,7 @@ The current implementation of SweetPea is embedded in Python; the syntax present
 
 Why does SweetPea need to use a SAT-sampler? Using a SAT-sampler is like bringing a nuke to a knife fight; if a more straight-forward solution was tractable, it would be much simpler, faster, and more maintainable to use a simple solution.
 
-Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of ~120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
+Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of \texttt{~}120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
 
 The first straight-forward solution is to try a random element in the search space, and see if that ordering satisfies the constraints. For realistic experiments, we found this approach to be intractable-- the set of solutions is sparce in the search space.
 
@@ -67,16 +67,16 @@ To achieve this linear encoding, we emulate the logic in a \emph{popcount} circu
     \label{fig:one_plus_one_sol}%
 \end{figure}
 
-First let's consider a half-adder. A half-adder is a circuit which takes two single bit inputs a and b and sets two single bit outputs s ("sum") and c ("carry") according to what the sum of the values of a and b are. The value of the input bits is 1 if that variable is true, and 0 if that variable is false. The output bits are boolean functions of the input bits: s = a xor b ; c = a and b. See \figref{half_adder} for an illustration.
+First let's consider a half-adder. A half-adder is a circuit which takes two single bit inputs \texttt{a} and \texttt{b} and sets two single bit outputs \texttt{s} ("sum") and \texttt{c} ("carry") according to what the sum of the values of \texttt{a} and \texttt{b} are. The value of the input bits is 1 if that variable is true, and 0 if that variable is false. The output bits are boolean functions of the input bits: \texttt{s = a xor b ; c = a and b}. See \figref{half_adder} for an illustration.
 
 What does it mean for a boolean variable to "equal" some relationship between other boolean variables? Really what we mean here is that their values vary in lock-step; that the variable being bound is true only when the relation is true, and false identically when the relation is false. This is the boolean relation iff. This means that we can represent a half-adder with the boolean formula:
-(s iff (a xor b)) and (c iff (a and b)).
+\texttt{(s iff (a xor b)) and (c iff (a and b))}.
 
-How does using a SAT solver allow us to emulate this circuit? Recall that the solver's job is to return an assignment to each of our variables (a, b, c, s) such that the entire formula.
+How does using a SAT solver allow us to emulate this circuit? Recall that the solver's job is to return an assignment to each of our variables \texttt{(a, b, c, s)} such that the entire formula.
 
 Let's look at some examples. Lets imagine adding 1 + 1; this means that the full formula we hand to the solver is:
-(s iff (a xor b)) and (c iff (a and b)) and (a) and (b). See \figref{one_plus_one_cnf} for the DIMACS cnf representation of these boolean clauses.
-For the entire formula to be true, each of the and clauses must be true. This trivially means that the assignment for a is true, and b is true. Looking at the more interesting clauses, we know s is true iff (a xor b). a xor b is False when both a and b are true, so s must be false for that clause to be true. We also know that c is true iff (a and b), so c must also be true.
+\texttt{(s iff (a xor b))} and \texttt{(c iff (a and b))} and \texttt{(a)} and \texttt{(b)}. See \figref{one_plus_one_cnf} for the DIMACS cnf representation of these boolean clauses.
+For the entire formula to be true, each of the and clauses must be true. This trivially means that the assignment for \texttt{a} is true, and \texttt{b} is true. Looking at the more interesting clauses, we know \texttt{s} is true \texttt{iff (a xor b)}. \texttt{a xor b} is false when both \texttt{a} and \texttt{b} are true, so \texttt{s} must be false for that clause to be true. We also know that \texttt{c} is true \texttt{iff (a and b)}, so \texttt{c} must also be true.
 
 This means that for this input, the solver would give us the satisfying assignment:
 \begin{verbatim}
@@ -112,6 +112,6 @@ Next, we'll pair up bits in the bitstring, and add those using 8 1-bit adders. T
 
 Explicitly, this means that we will pair up each of the two-bit solutions, and add them with 4 2-bit wide adders. These will produce 3 bit solutions. We will then pair up these three-bit solutions, and add them with 2 3-bit adders. This will produce only 2 4-bit solutions. Finally, we can take these 2 4-bit answers and add them together with a 4-bit adder to produce a final 5-bit solution.
 
-This final solution represents the number of bits set in the original bitstring in 5-bit binary. Recall that our desired interface was to specify constraints of the form "of these n variables, exactly k must be true". We can then specify this constraint by setting the bits of the final popcount solution to be exactly the same as the binary representation of k. For example, let's specify that we want exactly 3 of the 9 bit to be true our 9-bit popcount example. Let's call the bits of the solution [A, B, C, D, E]. A 5-bit binary representation of 3 is [0, 0, 0, 1, 1], so we can enforce the desired constraint by stating [-A, -B, -C, D, E].
+This final solution represents the number of bits set in the original bitstring in 5-bit binary. Recall that our desired interface was to specify constraints of the form "of these n variables, exactly k must be true". We can then specify this constraint by setting the bits of the final popcount solution to be exactly the same as the binary representation of k. For example, let's specify that we want exactly 3 of the 9 bit to be true our 9-bit popcount example. Let's call the bits of the solution \texttt{[A, B, C, D, E]}. A 5-bit binary representation of 3 is [0, 0, 0, 1, 1], so we can enforce the desired constraint by stating \texttt{[-A, -B, -C, D, E]}.
 
 We also want to provide an interface for specifying constraints of the form "of these n variables, at least (or at most) k must be true". To encode these constraints, we follow a similar technique: we compute the bits which represent the result of the popcount, and encode k in binary. Then, to enforce the inequality we perform a trick: we rewrite $ k < n $ as $ k - n < 0$. To enforce this at the bit-level we write (-n) by representing it in twos-complement. We can then add k + (-n) using a ripple-carry adder. Then, to ensure that $k + (-n) < 0$ we will force the result of that summation to be negative by forcing the top sum bit to be zero.
