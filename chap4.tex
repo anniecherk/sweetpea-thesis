@@ -2,7 +2,7 @@
 
 \chapter{SweetPea Language}
 
-SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT samplers: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea translates that high-level specification into an enormous low-level boolean formula. The SweetPea runtime then passes the SAT sampler Unigen that formula, and translates the low-level assignments into a high-level experimental sequence which satisfies the design. That experimental sequence is guaranteed to be approximately as likely as any other sequences which fulfills the design, reassuring scientists that they did not accidentally introduce bias because of the way the sequence was constructed.
+SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT samplers: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea handles the rest.
 
 In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter-- experimental designs consist of trials described in terms of factors and levels, and constraints and relationships over those trials, described here in terms of windows and derivation functions, and counting and balancing constraints. Finally, the full experiment is described in terms of a design, a crossing and experimental blocks. Here we'll look at a variety of experiments which motivate these various features, and the high-level language we provide to describe those experiments. In the next chapter we'll take a close look at how these features are efficiently encoded into a boolean formula.
 
@@ -57,7 +57,7 @@ There are two approaches to resolving this issue. The first is nearly-balancing 
 
 As mentioned in the previous section, it is also sometimes useful to have multiple blocks to repeat stimuli for an experiment with too few stimuli or to break up an experiment with too many stimuli across several sessions or subjects.
 
-\section{SweetPea Language}
+\section{SweetPea Language Reference}
 
 Now that we've seen a bottom-up description of the sorts of experimental designs we would like to describe, let's take a top-down view of how to describe them in SweetPea. A specification of an \texttt{Experiment} is a valid SweetPea program. See the following schema for a full specification:
 
@@ -190,6 +190,8 @@ congruence_factor = Factor("congruent?", [con_level, inc_level])
 \end{verbatim}
 
 Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. See \figref{windows} for an illustration. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
+
+SweetPea currently supports transition and congruency constraints, but does not support the most general form of derivation function. See future work for a discussion on how to handle fully arbitary derivation functions.
 
 \subsection{Counting Constraints}
 SweetPea also provides three counting constraint constructors which let the user constrain levels to appear some number of times. These constructors are also named tuples, which take the number to count to, k, and the level to which apply this constraint. Since individual levels are not directly referenced by variables, the user must specify a tuple of factor name and level name.

@@ -62,7 +62,7 @@ text      = ("text",      ["red", "blue"])
 \end{verbatim}
 %\end{code}
 
-Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same. \begin{verbatim} NoMoreThanKInARow \end{verbatim} is a constraint constructor function in SweetPea, which allows us to declaratively specify the constraint:
+Next, let's represent the constraint that there should be no repetitions of stimuli whose text is the same. \texttt{NoMoreThanKInARow} is a constraint constructor function in SweetPea, which allows us to declaratively specify the constraint:
 
 \begin{verbatim}
 k = 2
@@ -85,15 +85,15 @@ In this example, the design and the full crossing are the same, though that does
 
 \section{A Runtime for Uniform Sampling}
 
-A \emph{boolean formula} consists of \emph{boolean variables} combined using boolean operators, such as AND, OR and NOT. A \emph{satisfying assignment} is a specification of True or False to each boolean variable which causes the entire formula to evaluate to True. Some formulas are unsatisfiable.
+A \emph{boolean formula} consists of \emph{boolean variables} combined using boolean operators, such as AND, OR and NOT. A \emph{satisfying assignment} is a specification of true or false to each boolean variable which causes the entire formula to evaluate to true. Some formulas are unsatisfiable.
 
-An example of an unsatisfiable formula is (A AND (NOT A)). Regardless of whether A is True of False, this formula will always evaluate to False. In contrast, the formula (A AND B) is satisfied by the assignment A is True and B is True, because (True AND True) evaluates to True.
+An example of an unsatisfiable formula is \texttt{(A AND (NOT A))}. Regardless of whether \texttt{A} is true or false, this formula will always evaluate to false. In contrast, the formula \texttt{(A AND B)} is satisfied by the assignment \texttt{A} is true and \texttt{B} is true, because \texttt{(true AND true)} evaluates to True.
 
 How do we represent the program above as a boolean formula?
 
 First, we represent each level of each trial as a boolean variable, which corresponds to whether or not that level is chosen for the produced experimental sequence. For our Stroop example, there are 4 trials, each of which have 4 boolean variables corresponding to each of the levels for a total of 16 boolean variables. A real experiment will have on the order of hundreds to thousands of boolean variables. These level variables are bound by additional constraints such as that only one level per factor is true, as well as constraints that say how many instances of a level should exist in a given experimental block.
 
-For our Stroop example, this means that for each trial we create boolean variables to represent ink\_color=red, ink\_color=blue, text=red, text=blue. We create boolean formulas for each trial which say that exactly one of ink\_color=red or ink\_color=blue must be true, and that there must be two ink\_color=red's in the fully crossed block.
+For our Stroop example, this means that for each trial we create boolean variables to represent \texttt{ink\_color}=red, \texttt{ink\_color}=blue, \texttt{text}=red, \texttt{text}=blue. We create boolean formulas for each trial which say that exactly one of \texttt{ink\_color}=red or \texttt{ink\_color}=blue must be true, and that there must be two \texttt{ink\_color}=red's in the fully crossed block.
 
 We have multiple strategies for encoding constraints, but for now let's say we have a strategy for encoding constraints of the form "no more than K in a row". We can use this to encode our constraint that there should be no repetitions of stimuli whose text is the same.
 
