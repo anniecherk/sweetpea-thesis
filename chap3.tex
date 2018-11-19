@@ -25,15 +25,7 @@ Are most published social psychological findings false? \cite{stroebe2016most}
 
 \paragraph*{Solver Aided Languages}
 
-SweetPea is an interface to the SAT sampler Unigen. The benefit of Unigen is it provides strong statistical guarantees, but the drawback is that it only understands boolean formulas. To leverge the power of this tool
-
-- rosette \cite{torlak2014lightweight}
-
-- sketch: "Domain-Specific Symbolic Compilation" \cite{bodik2017domain}
-
-- dafny (the z3 language) \cite{leino2013developing}
-
-- hyperkernel: co-designing a language and the verification \cite{nelson2017hyperkernel}
+SweetPea can be thought of as a domain-specific interface to any tool which solves boolean formulas, and specifically to the SAT sampler Unigen, which provides the near-uniformity guarantee. There are other \emph{solver aided languages} such as, Dafny \cite{leino2013developing}, which is the language for interacting with the solver z3 in, and Sketch \cite{bodik2017domain} which "Domain-Specific Symbolic Compilation". There is also Rosette \cite{torlak2014lightweight} which is a platform for developing solver aided DSLs. Finally, Hyperkernel \cite{nelson2017hyperkernel} discusses the process of co-designing a system to be amenable to verification, analogously to how the SweetPea language is designed to be amenable to translation into SAT.
 
 
 \paragraph*{Combinatorial Search Spaces}
