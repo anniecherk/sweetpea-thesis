@@ -59,11 +59,39 @@ Derived levels are represented using the same technique as we used for the cross
     \label{fig:congruence_vars_stroop}%
 \end{figure}
 
-The current sweetpea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
+The current SweetPea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
 
+Let's consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we'll allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. This means the variable allocation looks like:
 
-- Work an example, for instance congruence.
+\begin{verbatim}
+----------------------------------------------
+|   Trial |  color   |   text   | congruent? |
+|       # | red blue | red blue |  con  inc  |
+----------------------------------------------
+|       1 |  1   2   |  3   4   |   5    6   |
+|       2 |  7   8   |  9   10  |  11    12  |
+|       3 | 13   14  | 15   16  |  17    18  |
+|       4 | 19   20  | 21   22  |  23    24  |
+----------------------------------------------
+\end{verbatim}
 
+Then, we encode constraints on when these new variables are true. When is the first trial congruent? \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables.
+
+What if instead we considered transitions? Let's reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
+
+\begin{verbatim}
+----------------------------------------------
+|   Trial |  color   |   text   | transition |
+|       # | red blue | red blue |  swi  rep  |
+----------------------------------------------
+|       1 |  1   2   |  3   4   |   5    6   |
+|       2 |  7   8   |  9   10  |  11    12  |
+|       3 | 13   14  | 15   16  |  17    18  |
+|       4 | 19   20  | 21   22  |  23    24  |
+----------------------------------------------
+\end{verbatim}
+
+We can then state \texttt{5 iff (3 and 9) or (4 and 10)}. This identical clause structure allows us to model both of these common derivations. Encoding arbitrary derivations is left as future work.
 
 \section{Correctness Guarantees}
 
