@@ -51,14 +51,6 @@ In summary, an experimental sequence is represented as a list of boolean variabl
 
 \subsection{Representing Derived Levels and Derivation Functions}
 
-Derived levels are represented using the same technique as we used for the crossing constraints. We allocate a new boolean variables for each derived level, and bind it (in an if-and-only-if clause) to the original experimental sequence variables using the user-provided derivation function. To describe this process, we'll see how to add congruency constraints to the Stroop example; see figure \figref{congruence_vars_stroop} for a visualization of these new variables for the derived congruence levels.
-
-\begin{figure}[t]
-    \centerline{\includegraphics[origin=c,width=10cm]{fig_congruence_vars_stroop}}
-    \caption{Of the 24 possible orderings, the highlighted 8 satisfy the constraints.}%
-    \label{fig:congruence_vars_stroop}%
-\end{figure}
-
 The current SweetPea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
 
 Let's consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we'll allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. This means the variable allocation looks like:
@@ -75,7 +67,7 @@ Let's consider a congruency derivation over the simple Stroop example. In additi
 ----------------------------------------------
 \end{verbatim}
 
-Then, we encode constraints on when these new variables are true. When is the first trial congruent? \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables.
+Then, we encode constraints on when these new variables are true. When is the first trial congruent? \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
 
 What if instead we considered transitions? Let's reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
 
@@ -95,6 +87,15 @@ We can then state \texttt{5 iff (3 and 9) or (4 and 10)}. This identical clause 
 
 \section{Correctness Guarantees}
 
-- cite guarantee from unigen
+The goal of SweetPea is to produce experimental sequences which satisfy the experimental design with uniform probability: not favoring any valid sequence over any other. SweetPea achieves this goal by relying on the uniform samping guarantee that Unigen provides in \cite{chakraborty2013scalable}.
 
-- postulate why this is preserved: TODO
+Unigen is a near-uniform SAT sampler. Near-uniform is defined in \cite{meel2016constrained} as
+
+todo typeset...
+\begin{verbatim}
+  1 / ((number of solutions)*(1+ epsilon)) <=
+   Probability[Finding a given solution] <=
+  (1+epsilon) / (number of solutions)
+\end{verbatim}
+
+This guarantees that the number of \emph{SAT witnesses}, or satisfying solutions, to the CNF is approximately uniformly probable. How does the number of satisfying SAT solutions relate to the number of experimental sequences which satisfy the experimental design? Hopefully the relationship is one-to-one but should probably work some small examples about why this is true TODO.
