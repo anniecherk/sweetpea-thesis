@@ -4,7 +4,15 @@
 
 SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT samplers: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea handles the rest.
 
-In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter-- experimental designs consist of trials described in terms of factors and levels, and constraints and relationships over those trials, described here in terms of windows and derivation functions, and counting and balancing constraints. Finally, the full experiment is described in terms of a design, a crossing and experimental blocks. Here we'll look at a variety of experiments which motivate these various features, and the high-level language we provide to describe those experiments. In the next chapter we'll take a close look at how these features are efficiently encoded into a boolean formula.
+In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter. Experimental design specifications consist of:
+\begin{itemize}
+  \item trials described in terms of factors and levels,
+  \item constraints and relationships over those trials,
+  \item counting and balancing constraints,
+  \item and a block specification consisting of a crossing and a design.
+\end{itemize}
+
+Here we'll look at a variety of experiments which motivate these various features, and the high-level language we provide to describe those experiments. In the next chapter we'll take a close look at how these features are efficiently encoded into a boolean formula.
 
 
 \section{Experimental Design Wishlist}
@@ -17,7 +25,7 @@ Each component of a stimuli is represented as a \emph{factor} which can take on 
 
 Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and aqua) and dark colors (like navy and maroon).
 
-Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the research manually discretizing the continoum into several discrete values. This case is particularly challenging for SweetPea because it is difficult to phrase sampling a continious distribution as a boolean formula; for more thought on how we could better support this see Future Work.
+Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the researcher manually discretizing the continoum into several discrete values. This case is particularly challenging for SweetPea because it is difficult to phrase sampling a continious distribution as a boolean formula; for more thought on how we could better support this see Future Work.
 
 \subsection{Ordering Constraints}
 
@@ -202,7 +210,7 @@ Constraint = AtMostKInARow ( K, (FactorName, LevelName) )
            | AtLeastKInARow( K, (FactorName, LevelName) )
 \end{verbatim}
 
-The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times. The \texttt{ExactlyKInARow} constraint can be used to explicitly counterbalance levels. 
+The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times. The \texttt{ExactlyKInARow} constraint can be used to explicitly counterbalance levels.
 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 
