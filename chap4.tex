@@ -75,7 +75,7 @@ Factor             = FactorName Listof( Level )
                    | FactorName Listof( DerivedLevel )
 DerivedLevel       = LevelName Window
 Window             = Stride Width DerivationFunction Listof( FactorName )
-DerivationFunction = ( Listof( LevelName )... ) -> Boolean
+DerivationFunction = ( Listof( FactorName )... ) -> Boolean
 Level              = <any printable type> | Listof( Level )
 FactorName         = <any printable type>
 \end{verbatim}
@@ -117,7 +117,7 @@ In the resulting experimental sequence, exactly one choice of level is selected 
 \begin{verbatim}
   DerivedLevel       = LevelName Window
   Window             = Stride Width DerivationFunction Listof( FactorName )
-  DerivationFunction = ( Listof( LevelName )... ) -> Boolean
+  DerivationFunction = ( Listof( FactorName )... ) -> Boolean
 \end{verbatim}
 
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined derivation functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window.

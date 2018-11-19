@@ -59,15 +59,8 @@ Derived levels are represented using the same technique as we used for the cross
     \label{fig:congruence_vars_stroop}%
 \end{figure}
 
-The current sweetpea implementation special-cases the constraint encoding for congruency because this is a common constraint in the experiments we wish to model. We encode the congruency TODO
+The current sweetpea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
 
-
-Internally, we pick out the levels, create new levels whose value depends on a boolean relationship of those levels. The relationship is then defined by a literal truth table:
-- generate a truth table for the defined function by:
-- each input is a factor
-- then take all boolean combos and literally run it
-- that generates a truth table
-- encode that truth table in the logic by translating to CNF
 
 - Work an example, for instance congruence.
 

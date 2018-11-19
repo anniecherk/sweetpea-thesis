@@ -18,7 +18,19 @@ Constraint = [AtMost][AtLeast][Exactly]KInARow K (FactorName, LevelName) Window
 
 \paragraph*{General Case Derivations}
 
+Currently, SweetPea can handle transition and congruency constraints. These are common constraints in task switching experiments, but to be able to represent a wider variety of experiments, SweetPea needs to handle arbitrary derivation functions. Recall that a derivation function is a python function with the function signature:
 
+\begin{verbatim}
+  DerivationFunction = ( Listof( FactorName )... ) -> Boolean
+\end{verbatim}
+
+Derivation functions are used by windows, along with a list of factors to which this function should be symbolically applied to:
+
+\begin{verbatim}
+  Window = Stride Width DerivationFunction Listof( FactorName )
+\end{verbatim}
+
+To encode any function which takes some number of lists of factor names, and evaluates the truth value of those factors, we would have to use a truth table encoding. This means that we could generate a truth table which represented every possible combination of the input variables and compute what the output value of the derivation function would be for every input combination. We could then allocate a new level by specifying that that level is true iff (all the rows of the truth table which are true). We could then further simplify this truth table by the Quine-Mccluskey algorithm.
 
 % \paragraph*{Syntactic Sugar}
 % One of the examples we saw in Chapter 3 was:
