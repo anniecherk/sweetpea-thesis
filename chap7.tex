@@ -27,7 +27,7 @@ crossing     = [color, text]
 k = 1
 constraints = [NoMoreThanKInARow(k, ("congruent?", "con"))]
 
-block        = fully_cross_block(design, crossing, constraints)
+block        = FullyCrossBlock(design, crossing, constraints)
 
 experiments  = synthesize_trials(block)
 

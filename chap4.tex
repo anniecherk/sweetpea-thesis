@@ -67,39 +67,69 @@ As mentioned in the previous section, it is also sometimes useful to have multip
 
 \section{SweetPea Language Reference}
 
-Now that we've seen a bottom-up description of the sorts of experimental designs we would like to describe, let's take a top-down view of how to describe them in SweetPea. A specification of an \texttt{Experiment} is a valid SweetPea program. See the following schema for a full specification:
+Now that we have the context of the types of experiments we would like to model, let's discuss the SweetPea grammar. A specification of an \texttt{Experiment} is a valid SweetPea program. See the following schema for a full specification:
 
 \begin{verbatim}
-Experiment         = Listof( Blocks )
-Block              = Design Crossing Listof( Constraint )
-Design             = Listof( Factor )
-Crossing           = Listof( Factor ) CrossingType
+Experiment         = [Block]
+Block              = Design Crossing [Constraint]
+Design             = [Factor]
+Crossing           = [Factor] CrossingType
 CrossingType       = FullyCrossed
                    | MultipleFullyCrossed
 Constraint         = AtMostKInARow  K (FactorName, LevelName)
                    | ExactlyKInARow K (FactorName, LevelName)
                    | AtLeastKInARow K (FactorName, LevelName)
-Factor             = FactorName Listof( Level )
-                   | FactorName Listof( DerivedLevel )
+Factor             = FactorName [Level]
+                   | FactorName [DerivedLevel]
 DerivedLevel       = LevelName Window
-Window             = Stride Width DerivationFunction Listof( FactorName )
-DerivationFunction = ( Listof( FactorName )... ) -> Boolean
-Level              = <any printable type> | Listof( Level )
+Window             = Stride Width DerivationFunction [FactorName]
+DerivationFunction = ( [FactorName]... ) -> Boolean
+Level              = <any printable type> | [Level]
 FactorName         = <any printable type>
 \end{verbatim}
 
-The remaining subsections will discuss this schema, broken up into sections, and document the available constructors.
+Some of these terms are specified directly, like FactorName and Level, while others are created via constructors. A full list of the constructors in SweetPea is:
+
+\begin{verbatim}
+Factor constructor:
+  Factor(<factor name>, <list of levels>)
+
+Window constructors:
+  Transition(<derivation function>, <list of factors>)
+  WithInTrial(<derivation function>, <list of factors>)
+  Window(<stride>, <width>, <derivation function>, <list of factors>)
+
+DerivedLevel constructor:
+  DerivedLevel(<level name>, <window>)
+
+Counting Constraint constructors:
+  AtMostKInARow (<k>, (<factor name>, <level name>))
+  ExactlyKInARow(<k>, (<factor name>, <level name>))
+  AtLeastKInARow(<k>, (<factor name>, <level name>))
+  
+Block constructors:
+  FullyCrossBlock(<design>, <crossing_factors>, <weights>)
+  MultipleFullyCrossBlock(<design>, <crossing_factors>, <weights>, <numReps>)
+\end{verbatim}
+
+Once the user has constructed a complete SweetPea specification by creating an \texttt{Experiment}, they can call a function to synthesize the experimental sequence:
+
+\begin{verbatim}
+synthesize_trials(<experiment>, <number of experiment sequences>)
+\end{verbatim}
+
+The remaining subsections will investigate and document each component of the grammar.
 
 \subsection{Factors and Levels}
 
 \begin{verbatim}
-  Factor             = FactorName Listof( Level )
-                     | FactorName Listof( DerivedLevel )
-  Level              = <any printable type> | Listof( Level )
+  Factor             = FactorName [Level]
+                     | FactorName [DerivedLevel]
+  Level              = <any printable type> | [Level]
   FactorName         = <any printable type>
 \end{verbatim}
 
-Factors are named tuples, specified by factor names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
+Factors are constructed as named tuples, specified by factor names, and a possibly nested list of levels, each of which also has a name. Names are used to specify the experimental sequence that the runtime eventually returns, but they do not need to be strings. They can be any "printable" data-type; this can be useful because names are referenced in user-defined constraints as we'll see in the next subsection.
 
 \begin{verbatim}
 example_factor = Factor("example_name", ["example_level"])
@@ -124,8 +154,8 @@ In the resulting experimental sequence, exactly one choice of level is selected 
 
 \begin{verbatim}
   DerivedLevel       = LevelName Window
-  Window             = Stride Width DerivationFunction Listof( FactorName )
-  DerivationFunction = ( Listof( FactorName )... ) -> Boolean
+  Window             = Stride Width DerivationFunction [FactorName]
+  DerivationFunction = ( [FactorName]... ) -> Boolean
 \end{verbatim}
 
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined derivation functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window.
@@ -134,14 +164,14 @@ SweetPea provides constructors for two common window sizes: \texttt{WithinTrial}
 
 \begin{verbatim}
   Window Constructors:
-Transition(derivation function, list of factors)
-WithInTrial(derivation function, list of factors)
-Window(stride, width, derivation function, list of factors)
+Transition(<derivation function>, <list of factors>)
+WithInTrial(<derivation function>, <list of factors>)
+Window(<stride>, <width>, <derivation function>, <list of factors>)
 \end{verbatim}
 
 Consider the transition relationship, which for a given factor specifies whether each following trial has the same value for that factor (a repetition) or a different value (a switch). We will represent this relationship as a new, derived, factor. This factor has two levels: one level which indicates that the following stimuli was a repetition, the other that it was a switch. What are the parameters for the window for this relationship? Because we consider two trials at a time, and want to consider all pairs of consecutive trials, the width is two, and the stride is one.
 
-Given this conceptual window, the user can then provide a function for each level of the derived factor which specifies, based on the values of the levels which are "in scope" in the window, whether the derived level is selected or not. For the transition example, this may look like:
+Given this conceptual window, the user can then provide a function for each derived level of the derived factor which specifies, based on the values of the levels which are "in scope" in the window, whether the derived level is selected or not. For the transition example, this may look like:
 
 \begin{verbatim}
 def repetition(ink_colors):
@@ -205,38 +235,35 @@ SweetPea currently supports transition and congruency constraints, but does not 
 SweetPea also provides three counting constraint constructors which let the user constrain levels to appear some number of times. These constructors are also named tuples, which take the number to count to, k, and the level to which apply this constraint. Since individual levels are not directly referenced by variables, the user must specify a tuple of factor name and level name.
 
 \begin{verbatim}
-Constraint = AtMostKInARow ( K, (FactorName, LevelName) )
-           | ExactlyKInARow( K, (FactorName, LevelName) )
-           | AtLeastKInARow( K, (FactorName, LevelName) )
+Counting Constraint constructors:
+  AtMostKInARow (<k>, (<factor name>, <level name>))
+  ExactlyKInARow(<k>, (<factor name>, <level name>))
+  AtLeastKInARow(<k>, (<factor name>, <level name>))
 \end{verbatim}
 
-The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times. The \texttt{ExactlyKInARow} constraint can be used to explicitly counterbalance levels.
+The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, to ensure that independent variables do not show up an unreasonable number of times.
 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 
 \begin{verbatim}
-Experiment         = Listof( Blocks )
+Experiment         = [Block]
 Block              = Design Crossing Constraints
-Design             = Listof( Factor )
-Crossing           = Listof( Factor ) CrossingType
+Design             = [Factor]
+Crossing           = [Factor] CrossingType
 CrossingType       = FullyCrossed
                    | MultipleFullyCrossed
+Block constructors:
+  FullyCrossBlock(<design>, <crossing_factors>, <weights>)
+  MultipleFullyCrossBlock(<design>, <crossing_factors>, <weights>, <numReps>)
 \end{verbatim}
-
 
 Once we've described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The design of the experiment is the specification of factors represent a trial. To specify the set of trials in the experiment we need to specify the crossing of the design. As mentioned before, a full crossing is commonly, but not always, used.
 
 The design is specified explicitly as a list of factors, while the block is built by a constructor which knows how to construct the block based on the crossing type. Each constructor takes two lists of factors, one which represents all the factors which represent a trial (\texttt{design}), and one which represents which factors should be included in the crossing (\texttt{crossing\_factors}). Each trial in the resulting experimental sequence will have a value for factors specified in \texttt{design}.
 
-\begin{verbatim}
-   Block Constructors:
-fully_cross_block( design, crossing_factors, weights )
-multiple_fully_cross_block( design, crossing_factors, weights, numReps )
-\end{verbatim}
-
 The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experiemental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
 
-Finally, to generate the experimental sequence, the user can call \texttt{synthesize\_experiment} which takes an \texttt{experiment} and produces a list of trial specifications.
+Finally, to generate the experimental sequence, the user can call \texttt{synthesize\_experiment} which takes an \texttt{Experiment} and produces a list of trial specifications.
 
 Putting together all the code snippets in this section, here is a full specification of a simple Stroop experiment in SweetPea:
 
@@ -263,7 +290,7 @@ crossing     = [color, text]
 
 constraints = [NoMoreThanKInARow(1, ("congruent?", "con"))]
 
-block        = fully_cross_block(design, crossing, constraints)
+block        = FullyCrossBlock(design, crossing, constraints)
 
 experiments  = synthesize_trials(block, 5)
 \end{verbatim}
