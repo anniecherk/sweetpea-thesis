@@ -57,8 +57,8 @@ First, we represent the factors directly as a list of levels:
 
 %\begin{code}
 \begin{verbatim}
-ink_color = ("ink_color", ["red", "blue"])
-text      = ("text",      ["red", "blue"])
+ink_color = Factor("ink_color", ["red", "blue"])
+text      = Factor("text",      ["red", "blue"])
 \end{verbatim}
 %\end{code}
 
@@ -76,7 +76,7 @@ Having specified the factors and the constraints over those factors, we can now 
 design = [ink_color, text]
 crossing = design
 
-experiment = full_crossing(design, crossing, constraints)
+experiment = FullyCrossBlock(design, crossing, constraints)
 
 synthesize_trials(experiment)
 \end{verbatim}
@@ -85,9 +85,9 @@ In this example, the design and the full crossing are the same, though that does
 
 \section{A Runtime for Uniform Sampling}
 
-A \emph{boolean formula} consists of \emph{boolean variables} combined using boolean operators, such as AND, OR and NOT. A \emph{satisfying assignment} is a specification of true or false to each boolean variable which causes the entire formula to evaluate to true. Some formulas are unsatisfiable.
+A \emph{boolean formula} consists of \emph{boolean variables} combined using boolean operators, such as \texttt{and}, \texttt{or}, and \texttt{not}. A \emph{satisfying assignment} is a specification of true or false to each boolean variable which causes the entire formula to evaluate to true. Some formulas are unsatisfiable.
 
-An example of an unsatisfiable formula is \texttt{(A AND (NOT A))}. Regardless of whether \texttt{A} is true or false, this formula will always evaluate to false. In contrast, the formula \texttt{(A AND B)} is satisfied by the assignment \texttt{A} is true and \texttt{B} is true, because \texttt{(true AND true)} evaluates to True.
+An example of an unsatisfiable formula is \texttt{(A and (not A))}. Regardless of whether \texttt{A} is true or false, this formula will always evaluate to false. In contrast, the formula \texttt{(A and B)} is satisfied by the assignment \texttt{A} is true and \texttt{B} is true, because \texttt{(true and true)} evaluates to True.
 
 How do we represent the program above as a boolean formula?
 

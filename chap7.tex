@@ -55,12 +55,15 @@ For each trial, each level is allocated a boolean variable which will represent 
 The experimental design is then translated into a list of constraints encoded as a boolean formula involving those 24 variables.
 
 These constraints include:
+\begin{enumerate}
 
-- consistency constraints which ensure that exactly one level of each trial is selected. Specifically this ensures that exactly one of (1, 2), (3, 4), (5, 6), (7, 8), etc are true at a time.
+\item consistency constraints which ensure that exactly one level of each trial is selected. Specifically this ensures that exactly one of (1, 2), (3, 4), (5, 6), (7, 8), etc are true at a time.
 
-- full-crossing constraints which ensure that the result has exactly one of each state in the full crossing on these levels. These are encoded as "counting constraints" produced by the popcount circuit encoding described in Chapter 6.
+\item full-crossing constraints which ensure that the result has exactly one of each state in the full crossing on these levels. These are encoded as "counting constraints" produced by the popcount circuit encoding described in Chapter 6.
 
-- constraints which ensure that the congruency derivation matches the derivation function; for instance, this means that 5 is true iff (1 and 3) are true, or (2 and 4) are true.
+\item constraints which ensure that the congruency derivation matches the derivation function; for instance, this means that 5 is true iff (1 and 3) are true, or (2 and 4) are true.
+
+\end{enumerate}
 
 \paragraph*{Synthesizing an Experimental Sequence}
 

@@ -70,21 +70,21 @@ As mentioned in the previous section, it is also sometimes useful to have multip
 Now that we have the context of the types of experiments we would like to model, let's discuss the SweetPea grammar. A specification of an \texttt{Experiment} is a valid SweetPea program. See the following schema for a full specification:
 
 \begin{verbatim}
-Experiment         = [Block]
-Block              = Design Crossing [Constraint]
-Design             = [Factor]
-Crossing           = [Factor] CrossingType
+Experiment         = [Block, ...]
+Block              = Design Crossing [Constraint, ...]
+Design             = [Factor, ...]
+Crossing           = [Factor, ...] CrossingType
 CrossingType       = FullyCrossed
                    | MultipleFullyCrossed
 Constraint         = AtMostKInARow  K (FactorName, LevelName)
                    | ExactlyKInARow K (FactorName, LevelName)
                    | AtLeastKInARow K (FactorName, LevelName)
-Factor             = FactorName [Level]
-                   | FactorName [DerivedLevel]
+Factor             = FactorName [Level, ...]
+                   | FactorName [DerivedLevel, ...]
 DerivedLevel       = LevelName Window
-Window             = Stride Width DerivationFunction [FactorName]
-DerivationFunction = ( [FactorName]... ) -> Boolean
-Level              = <any printable type> | [Level]
+Window             = Stride Width DerivationFunction [FactorName, ...]
+DerivationFunction = ( [FactorName, ...]... ) -> Boolean
+Level              = <any printable type> | [Level, ...]
 FactorName         = <any printable type>
 \end{verbatim}
 
@@ -106,7 +106,7 @@ Counting Constraint constructors:
   AtMostKInARow (<k>, (<factor name>, <level name>))
   ExactlyKInARow(<k>, (<factor name>, <level name>))
   AtLeastKInARow(<k>, (<factor name>, <level name>))
-  
+
 Block constructors:
   FullyCrossBlock(<design>, <crossing_factors>, <weights>)
   MultipleFullyCrossBlock(<design>, <crossing_factors>, <weights>, <numReps>)
@@ -123,9 +123,9 @@ The remaining subsections will investigate and document each component of the gr
 \subsection{Factors and Levels}
 
 \begin{verbatim}
-  Factor             = FactorName [Level]
-                     | FactorName [DerivedLevel]
-  Level              = <any printable type> | [Level]
+  Factor             = FactorName [Level, ...]
+                     | FactorName [DerivedLevel, ...]
+  Level              = <any printable type> | [Level, ...]
   FactorName         = <any printable type>
 \end{verbatim}
 
@@ -154,8 +154,8 @@ In the resulting experimental sequence, exactly one choice of level is selected 
 
 \begin{verbatim}
   DerivedLevel       = LevelName Window
-  Window             = Stride Width DerivationFunction [FactorName]
-  DerivationFunction = ( [FactorName]... ) -> Boolean
+  Window             = Stride Width DerivationFunction [FactorName, ...]
+  DerivationFunction = ( [FactorName, ...]... ) -> Boolean
 \end{verbatim}
 
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined derivation functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window.
@@ -246,10 +246,10 @@ The \texttt{AtMostKInARow} constraint is useful as a "sanity check" constraint, 
 \subsection{Experimental Design, Balancing and Experimental Structure}
 
 \begin{verbatim}
-Experiment         = [Block]
+Experiment         = [Block, ...]
 Block              = Design Crossing Constraints
-Design             = [Factor]
-Crossing           = [Factor] CrossingType
+Design             = [Factor, ...]
+Crossing           = [Factor, ...] CrossingType
 CrossingType       = FullyCrossed
                    | MultipleFullyCrossed
 Block constructors:

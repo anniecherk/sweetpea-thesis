@@ -10,7 +10,7 @@ SweetPea is an embedded domain specific language, meaning that instead of provid
 
 \paragraph*{Embedding Language}
 
-The current implementation of SweetPea is embedded in Python; the syntax presented in the example code snippets in chapter 4 are valid python program snippets. The subsystem for handling Tsietin transforms is currently implemented in Haskell; an earlier implementation of the user-facing SweetPea syntax was also implemented in Haskell. We chose Haskell as an implementation language because its strong static types and functional purity lent it to verifying the correctness of the system. However, many scientists are familiar with Python, and not with Haskell syntax, so we decided to port the user-facing interface to Python to make it easier for them to use and interface with their existing workflows.
+The current implementation of SweetPea is embedded in Python; the syntax presented in the example code snippets in chapter 4 are valid python program snippets. The subsystem for encoding the counting constraints is currently implemented in Haskell; an earlier implementation of the user-facing SweetPea syntax was also implemented in Haskell. We chose Haskell as an implementation language because its strong static types and functional purity lent it to verifying the correctness of the system. However, many scientists are familiar with Python, and not with Haskell syntax, so we decided to port the user-facing interface to Python to make it easier for them to use and interface with their existing workflows.
 
 \paragraph*{Why SAT sampling?}
 
@@ -27,12 +27,6 @@ The simplest possible solution, and the one used in practice today by psychologi
 For the experimental designs we want to support, we found that the methods mentioned above were either intractable or favored certain satisfying sequences over others. The search problem SweetPea addresses is NP hard, and our problem size is too large to use brute force despite the exponentially large space.
 
 SweetPea uses the SAT-sampler Unigen because Unigen implements an approximate sampling method with statistical guarantees. Approximate sampling is a compromise: it allows us to gain traction on the otherwise untractably large space, while none-the-less maintaining strong statistically rigerous guarantees of the distribution of solutions. We use Unigen because implementing the underlying sampling method to work well in practice is complicated and an art; it seemed wiser to rely on an existing implementation rather than re-engineer it. This decision, however, to outsource searching the space to Unigen, came at the cost of encoding the domain specific constraints as a boolean formula. The decision to have SweetPea translate from the high-level domain specific semantics to SAT, as opposed to any other possible search space encoding, is an engineering decision; it comes directly from deciding it was better to rely on Unigen rather than reimplement parts of it's strategy. It is concievable that in the future, SweetPea would be able to compile to other backend representation, amenable to other search strategies.
-
-\paragraph*{Communicating with the SAT-Sampler}
-
-SweetPea is a program which generates a DIMACS CNF file from the user's program, calls the SAT solver Unigen as a subprocess with that file, and then translates the resulting assignment back to a human-readable format. This means translating the assignments to the experimental sequence they represent (see \figref{example_assignment} for an example). The resulting sequence can either be printed as a list of strings, or can be exported to a list of python dictionaries to be directly integrated into other psychology computational tools such as psyNeuLink.
-
-Unigen provides two features in addition to the standard DIMACS format: the ability to denote which variables are "important" for a final assignment (in our case, those that directly encode the state of the experimental sequence), and the ability to provide xors rather than or clauses. The current version of SweetPea uses the first feature (the important variables are called the \emph{supports}), and does not use the second, though it is an optimization for future work.
 
 
 \paragraph*{Internal Representations}

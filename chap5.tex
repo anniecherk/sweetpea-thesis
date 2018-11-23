@@ -6,7 +6,7 @@ In this chapter we'll examine how the language forms we saw in the previous chap
 
 \section{Conjunctive Normal Form (CNF)}
 
-A boolean formula consists of boolean variables combined using boolean operators, such as AND, OR and NOT. There are many canonical forms for boolean formulas; the one that SAT solvers commonly use is Conjunctive Normal Form (CNF). CNF is an "and of ors". This means that CNF is built out of OR clauses, which are clauses in which the boolean OR operator is applied to a list of variables. \texttt{A or B or (not C) or D} is an example of an OR clause. CNF is then the AND operator applied to a list of OR clauses. \texttt{(A or B) and (C or not D)} is an example of a boolean formula in CNF.
+A boolean formula consists of boolean variables combined using boolean operators, such as \texttt{and}, \texttt{or} and \texttt{not}. There are many canonical forms for boolean formulas; the one that SAT solvers commonly use is Conjunctive Normal Form (CNF). CNF is an "and of ors". This means that CNF is built out of OR clauses, which are clauses in which the boolean OR operator is applied to a list of variables. \texttt{A or B or (not C) or D} is an example of an OR clause. CNF is then the AND operator applied to a list of OR clauses. \texttt{(A or B) and (C or not D)} is an example of a boolean formula in CNF.
 
 SAT solvers typically process boolean formulas in CNF. This is partially because they are amenable to the search strategies that solvers commonly employ while searching for satisfying assignments, and partially because there is an efficient translation from a boolean formula in any form to the CNF canonical form.
 
@@ -27,7 +27,7 @@ Recall that experimental designs describe trials in terms of factors and levels,
 
 \begin{figure}[t]
     \centerline{\includegraphics[origin=c,width=10cm]{encoding_strupe_vars}}
-    \caption{Of the 24 possible orderings, the highlighted 8 satisfy the constraints.}%
+    \caption{Variable allocation for the running Stroop example.}%
     \label{fig:encoding_strupe_vars}%
 \end{figure}
 
@@ -37,7 +37,7 @@ The encoding we use allocates one boolean variable for each level of each factor
 
 \begin{figure}[t]
     \centerline{\includegraphics[origin=c,width=10cm]{stroop_crossing_vars}}
-    \caption{Of the 24 possible orderings, the highlighted 8 satisfy the constraints.}%
+    \caption{Additional variable allocation necessary for encoding the states possible in the full crossing.}%
     \label{fig:stroop_crossing_vars}%
 \end{figure}
 
@@ -45,7 +45,7 @@ In addition to any user-defined constraints, we always have two kinds of constra
 
 Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let's look at the constraints we need to add for the first trial-- first we'll add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected \texttt{(17 iff (1 and 3))}. We add constraints of this form for the other 3 states as well, ie \texttt{(18 iff (1 and 4))}, \texttt{(19 iff (2 and 3))}, \texttt{(20 iff (2 and 4))}. Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on.
 
-A realistic experiment may have on the order of 100 trials. This means that we need to be careful with this last constraint, that exactly one of \texttt{<}list of length 100\texttt{>}, is true. In other types of crossings (see chapter 4, section 4.2.3) that constraint may more generally be exactly k of \texttt{<}list of length 100\texttt{>} is true. The naive encoding (these k, or those k, or those k, and so on) is exponential, therefore not efficient, and in practice too large for our problem size. Instead, we get an efficient encoding using a Tsietin transform to encode these \emph{counting constraints}. For a detailed description of this algorithm, see the next chapter.
+A realistic experiment may have on the order of 100 trials. This means that we need to be careful with this last constraint, that exactly one of \texttt{<}list of length 100\texttt{>}, is true. In other types of crossings (see chapter 4, section 4.2.3) that constraint may more generally be exactly k of \texttt{<}list of length 100\texttt{>} is true. The naive encoding (these k, or those k, or those k, and so on) is exponential, therefore not efficient, and in practice too large for our problem size. Instead, we efficiently encode these \emph{counting constraints} following a technique similar to the one described in \cite{sinz2005towards}. For a detailed description of this algorithm, see the next chapter.
 
 In summary, an experimental sequence is represented as a list of boolean variables for each level of each trial. Assignments to these variables uniquely specify the experimental sequence. Irregardless of other user constraints, these variables are bound by constraints to ensure exactly one level is selected at a time for each factor, and that each state in the crossing is represented the correct number of times. The next chapter will examine the trade-offs from our encoding decisions. Next we'll see how these variables which represent levels can be used to encode derived levels and used with window constraints.
 
