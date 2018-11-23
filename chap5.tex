@@ -98,4 +98,6 @@ todo typeset...
   (1+epsilon) / (number of solutions)
 \end{verbatim}
 
-This guarantees that the number of \emph{SAT witnesses}, or satisfying solutions, to the CNF is approximately uniformly probable. How does the number of satisfying SAT solutions relate to the number of experimental sequences which satisfy the experimental design? Hopefully the relationship is one-to-one but should probably work some small examples about why this is true TODO.
+This guarantees that the number of \emph{SAT witnesses}, or satisfying solutions, to the CNF is approximately uniformly probable. How does the number of satisfying SAT solutions relate to the number of experimental sequences which satisfy the experimental design?
+
+We postulate that the requirement for translating the guarnatee from SAT solutions to experimental sequences is that there are no redundant internal variables created in the SAT encoding. The presence of redundant variables could skew the number of satisfying assignments such that finding an assignment would be uniform in that setting, but not in the variables we care about. We hypothesize that our encoding does not introduce redundant variables, and therefore preserves this guarantee. 
