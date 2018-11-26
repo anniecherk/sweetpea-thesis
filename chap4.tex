@@ -2,7 +2,7 @@
 
 \chapter{SweetPea Language}
 
-SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conviniently bridges the gap between scientists and SAT samplers: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea handles the rest.
+SweetPea achieves its goal of creating unbiased experimental sequences from high-level experimental designs by relying on a SAT sampler. Writing experimental designs in the language of a SAT sampler-- that is, as a boolean formula-- is highly uncomfortable. SweetPea, therefore, conveniently bridges the gap between scientists and SAT samplers: scientists describe their experimental designs in the terms they usually use in their domain, and SweetPea handles the rest.
 
 In this chapter, we'll document the features of the SweetPea language. They largely follow the components we saw in the Overview chapter. Experimental design specifications consist of:
 \begin{itemize}
@@ -21,15 +21,15 @@ We briefly saw the parts of an experiment with the Stroop test in Chapter 2. Now
 
 \subsection{Descriptions of Stimuli}
 
-Each component of a stimuli is represented as a \emph{factor} which can take on a disrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue. Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli.
+Each component of a stimuli is represented as a \emph{factor} which can take on a discrete number of \emph{levels}. In the Stroop experiment this was represented as the ink color being red of blue, and the text color being red or blue. Experiments typically have 2 to 7 factors with 2 to 4 levels each, resulting in roughly 50 to 200 stimuli.
 
 Levels may be nested into sub-levels. One reason to want to do this is to apply different constraints to each of the sublevels. For instance, a color factor may have nested sublevels of light colors (like yellow and aqua) and dark colors (like navy and maroon).
 
-Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the researcher manually discretizing the continoum into several discrete values. This case is particularly challenging for SweetPea because it is difficult to phrase sampling a continious distribution as a boolean formula; for more thought on how we could better support this see Future Work.
+Sometimes researchers may want to define factors with levels sampled from a continuous distribution, for example to model a spectrum of light or sound. Sweetpea currently does not support this other than by the researcher manually discretizing the continuum into several discrete values. This case is particularly challenging for SweetPea because it is difficult to phrase sampling a continuous distribution as a boolean formula; for more thought on how we could better support this see Future Work.
 
 \subsection{Ordering Constraints}
 
-Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if we are testing whether the presence of a certain level effects the subject's reaction time, we need control over when that level occurs and how often it occurs in relation to other levels. More generally, we need to be able to constrain the presence or absense of relationships which we define over the levels. Since levels can be grouped into arbitrary sub-levels, we should more generally be able to specify constraints on relationships over the sub-levels.
+Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if we are testing whether the presence of a certain level effects the subject's reaction time, we need control over when that level occurs and how often it occurs in relation to other levels. More generally, we need to be able to constrain the presence or absence of relationships which we define over the levels. Since levels can be grouped into arbitrary sub-levels, we should more generally be able to specify constraints on relationships over the sub-levels.
 
 One example of such a relationship is a transition constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). This is an important condition to control for in task-switching experiments because a subject's reaction time may depend on whether they just performed a similar or dissimilar task. An experimenter may wish to specify that a subject experience as many repetition or tasks as task switches.
 
@@ -206,7 +206,7 @@ transition_factor = Factor("transition?", [repeat_level, switch_level])
 
 \end{verbatim}
 
-Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is congruent, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a \texttt{WithinTrial} window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similiar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
+Let's consider another use-case. In the Stroop experiment, it is useful to ask whether or not a trial is congruent, meaning whether the ink color and the text specify the same color or not. We can define this relationship by considering a \texttt{WithinTrial} window, in which the width is one (since we consider a single trial at a time), and the stride is also one. The derivation function for congruence is similar to the one for repetitions; here however we always compare the first (and only) item in the ink colors and texts lists.
 
 \begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
@@ -229,7 +229,7 @@ congruence_factor = Factor("congruent?", [con_level, inc_level])
 
 Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. See \figref{windows} for an illustration. Some experiments may wish to define relationships which skip trials in the middle of the sequences. An example is an experiment with a "bait" trial: subjects are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
-SweetPea currently supports transition and congruency constraints, but does not support the most general form of derivation function. See future work for a discussion on how to handle fully arbitary derivation functions.
+SweetPea currently supports transition and congruency constraints, but does not support the most general form of derivation function. See future work for a discussion on how to handle fully arbitrary derivation functions.
 
 \subsection{Counting Constraints}
 SweetPea also provides three counting constraint constructors which let the user constrain levels to appear some number of times. These constructors are also named tuples, which take the number to count to, k, and the level to which apply this constraint. Since individual levels are not directly referenced by variables, the user must specify a tuple of factor name and level name.
@@ -261,7 +261,7 @@ Once we've described the trials in terms of levels and factors, we need to speci
 
 The design is specified explicitly as a list of factors, while the block is built by a constructor which knows how to construct the block based on the crossing type. Each constructor takes two lists of factors, one which represents all the factors which represent a trial (\texttt{design}), and one which represents which factors should be included in the crossing (\texttt{crossing\_factors}). Each trial in the resulting experimental sequence will have a value for factors specified in \texttt{design}.
 
-The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experiemental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
+The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experimental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
 
 Finally, to generate the experimental sequence, the user can call \texttt{synthesize\_experiment} which takes an \texttt{Experiment} and produces a list of trial specifications.
 
@@ -305,4 +305,4 @@ color red  | text red  | congruent? con
 \end{verbatim}
 
 
-In this chapter we have seen the SweetPea language features, which is the information a user would want to program in SweetPea. We have not yet discussed how these language features are implemented; in the following two chapters we will see how each of these primatives is encoded as a part of a boolean formula.
+In this chapter we have seen the SweetPea language features, which is the information a user would want to program in SweetPea. We have not yet discussed how these language features are implemented; in the following two chapters we will see how each of these primitives is encoded as a part of a boolean formula.
