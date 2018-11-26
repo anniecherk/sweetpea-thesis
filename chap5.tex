@@ -10,7 +10,7 @@ A boolean formula consists of boolean variables combined using boolean operators
 
 SAT solvers typically process boolean formulas in CNF. This is partially because they are amenable to the search strategies that solvers commonly employ while searching for satisfying assignments, and partially because there is an efficient translation from a boolean formula in any form to the CNF canonical form.
 
-More specifically, solvers typically process boolean formulas in the DIMACS CNF form. In the DIMACS convention, boolean variables are denoted by their index, and negation is denoted by a minus sign. This means that a formula like \texttt{(A or B) and (C or not D)} is represented as \texttt{(1 or 2) and (3 or -4)}. This index based renaming is very convinient as a convention for generating fresh variable names-- you just need to increment the variable counter to get a fresh variable. Each or-clause is written on an individual line, and every term within the or-clause is written as an element of a list; each list is terminated with the number 0. Finally, each formula also has a header which clues the consumer to the number of variables and clauses in formula. The full DIMACS CNF specification of the example in this paragraph is:
+More specifically, solvers typically process boolean formulas in the DIMACS CNF form. In the DIMACS convention, boolean variables are denoted by their index, and negation is denoted by a minus sign. This means that a formula like \texttt{(A or B) and (C or not D)} is represented as \texttt{(1 or 2) and (3 or -4)}. This index based renaming is very convinient as a convention for generating fresh variable names-- we just need to increment the variable counter to get a fresh variable. Each or-clause is written on an individual line, and every term within the or-clause is written as an element of a list; each list is terminated with the number 0. Finally, each formula also has a header which clues the consumer to the number of variables and clauses in formula. The full DIMACS CNF specification of the example in this paragraph is:
 \begin{verbatim}
 p cnf 4 2
 1, 2, 0
@@ -23,7 +23,7 @@ This specification is the langauge required to leverage the awesome power of SAT
 
 Recall that experimental designs describe trials in terms of factors and levels, and the relationships between those trials in terms of windows, derivation functions and counting constraints. Here, let's see how all of those components are encoded into a boolean formula; in the next chapter we'll discuss trade-offs of some encoding decisions and more details.
 
-\subsection{Representing Levels and Factors}
+\subsection{Representing Levels and Necessary Constraints}
 
 \begin{figure}[t]
     \centerline{\includegraphics[origin=c,width=10cm]{encoding_strupe_vars}}
@@ -41,7 +41,7 @@ The encoding we use allocates one boolean variable for each level of each factor
     \label{fig:stroop_crossing_vars}%
 \end{figure}
 
-In addition to any user-defined constraints, we always have two kinds of constraints over the level variables to correctly model the experiment. The first are \emph{consistency constraints} which state that only one level of each factor is selected at once. In the running example constraints of the form \texttt{(1 and not 2) or (not 1 and 2)} for each pair of levels would ensure that only one level is true at a time. The second kind of constraint is a \emph{crossing constraint} which ensures that the correct number of each kind of possible trial occurs in the experimental sequences.
+There are two kinds of constraints which need to be encoded; user-defined constraints and two other constraints which are always necessary to correctly model the experiment. The first are \emph{consistency constraints} which state that only one level of each factor is selected at once. In the running example constraints of the form \texttt{(1 and not 2) or (not 1 and 2)} for each pair of levels would ensure that only one level is true at a time. The second kind of constraint is a \emph{crossing constraint} which ensures that the correct number of each kind of possible trial occurs in the experimental sequences.
 
 Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let's look at the constraints we need to add for the first trial-- first we'll add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected \texttt{(17 iff (1 and 3))}. We add constraints of this form for the other 3 states as well, ie \texttt{(18 iff (1 and 4))}, \texttt{(19 iff (2 and 3))}, \texttt{(20 iff (2 and 4))}. Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on.
 
@@ -67,7 +67,7 @@ Let's consider a congruency derivation over the simple Stroop example. In additi
 ----------------------------------------------
 \end{verbatim}
 
-Then, we encode constraints on when these new variables are true. When is the first trial congruent? \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
+Then, we encode constraints on when these new variables are true. When is the first trial congruent? The first trial (\texttt{5}) is congruent if-and-only-if either the trial's color is red (\texttt{1}) and the text is red (\texttt{3}), or the color is blue (\texttt{2}) and the text is blue (\texttt{2}). In boolean logic this is: \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
 
 What if instead we considered transitions? Let's reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
 
@@ -83,7 +83,7 @@ What if instead we considered transitions? Let's reinterpret the variable named 
 ----------------------------------------------
 \end{verbatim}
 
-We can then state \texttt{5 iff (3 and 9) or (4 and 10)}. This identical clause structure allows us to model both of these common derivations. Encoding arbitrary derivations is left as future work.
+We can then state that the trial switches (\texttt{5}) if-and-only-if this trial's text is red (\texttt{3}) and the next trial's text is also red (\texttt{9}), or they are both blue (\texttt{4} and \texttt{10}). In boolean logic this is: \texttt{5 iff (3 and 9) or (4 and 10)}. This identical clause structure allows us to model both of these common derivations. Encoding arbitrary derivations is left as future work.
 
 \section{Correctness Guarantees}
 
@@ -91,13 +91,11 @@ The goal of SweetPea is to produce experimental sequences which satisfy the expe
 
 Unigen is a near-uniform SAT sampler. Near-uniform is defined in \cite{meel2016constrained} as
 
-todo typeset...
-\begin{verbatim}
-  1 / ((number of solutions)*(1+ epsilon)) <=
-   Probability[Finding a given solution] <=
-  (1+epsilon) / (number of solutions)
-\end{verbatim}
+\begin{align*}
+  \frac{1}{\text{number of solutions}\times(1+ \epsilon)} & \leq \text{Probability[Finding a given solution]} \\
+  &\leq (1+\epsilon) / \text{number of solutions}
+\end{align*}
 
 This guarantees that the number of \emph{SAT witnesses}, or satisfying solutions, to the CNF is approximately uniformly probable. How does the number of satisfying SAT solutions relate to the number of experimental sequences which satisfy the experimental design?
 
-We postulate that the requirement for translating the guarnatee from SAT solutions to experimental sequences is that there are no redundant internal variables created in the SAT encoding. The presence of redundant variables could skew the number of satisfying assignments such that finding an assignment would be uniform in that setting, but not in the variables we care about. We hypothesize that our encoding does not introduce redundant variables, and therefore preserves this guarantee. 
+When we translate from the high level specification to the boolean formula, we introduce new internal boolean variables (ie the sum and carry bits of the adders in the popcount encoding). We hypothesize that the number of satisfying SAT solutions is exactly the same as the number of experiment sequences when none of the internal boolean variables are redundant. Then, all the variables which directly encode the experiment are in lockstep with all the extra internal variables. If there are redudant variables, they could skew the number of satisfying assignments such that finding an assignment would be uniform with those variables, but not in the variables we care about. To the best of our knowledge, our encoding does not introduce redundant variables, and therefore preserves this guarantee.

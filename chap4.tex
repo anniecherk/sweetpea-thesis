@@ -29,7 +29,7 @@ Sometimes researchers may want to define factors with levels sampled from a cont
 
 \subsection{Ordering Constraints}
 
-Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if you are testing whether the presence of a certain level effects the subject's reaction time, you need control over when that level occurs and how often it occurs in relation to other levels. More generally, you need to be able to constrain the presence or absense of relationships which you define over the levels. Since levels can be grouped into arbitrary sub-levels, you should more generally be able to specify constraints on relationships over the sub-levels.
+Researchers must have some control over the ordering of stimuli to be able to test their hypothesis. For example, if we are testing whether the presence of a certain level effects the subject's reaction time, we need control over when that level occurs and how often it occurs in relation to other levels. More generally, we need to be able to constrain the presence or absense of relationships which we define over the levels. Since levels can be grouped into arbitrary sub-levels, we should more generally be able to specify constraints on relationships over the sub-levels.
 
 One example of such a relationship is a transition constraint, which specifies whether each level is followed by the same level (a repetition) or a different level (a switch). This is an important condition to control for in task-switching experiments because a subject's reaction time may depend on whether they just performed a similar or dissimilar task. An experimenter may wish to specify that a subject experience as many repetition or tasks as task switches.
 
@@ -59,7 +59,7 @@ Another alternative is that if balancing the congruent and incongruent levels is
 
 An experiment is composed of one or more experimental blocks; an experimental block is a sequence of stimuli. Experiments may be organized into blocks for several reasons: there may be prologue or epilogue blocks which set up some condition for the subject, the experiment may be designed to be run in several related sessions, or consist of several sub-experiments.
 
-It is impossible to balance some commonly desired constraints with a single block; for instance, it is not possible to have as many "repeat" transitions as "switch" transitions in the fully-balanced Stroop experiment because there are an even number of stimuli, resulting in an odd number of transitions. This means it's not possible to have exactly as many of one transition as the other.
+It is not always possible to balance some commonly desired constraints with a single block; for instance, it is not possible to have as many "repeat" transitions as "switch" transitions in the fully-balanced Stroop experiment because there are an even number of stimuli, resulting in an odd number of transitions. This means it's not possible to have exactly as many of one transition as the other.
 
 There are two approaches to resolving this issue. The first is nearly-balancing the levels: instead of requiring that there are exactly the same number of each level, require that there are the same number plus-or-minus one. The other solution is to create a "throw-away" block with a single stimuli in it which is used to satisfy the transition balancing constraint without being included in the full-crossing constraint.
 
@@ -67,7 +67,7 @@ As mentioned in the previous section, it is also sometimes useful to have multip
 
 \section{SweetPea Language Reference}
 
-Now that we have the context of the types of experiments we would like to model, let's discuss the SweetPea grammar. A specification of an \texttt{Experiment} is a valid SweetPea program. See the following schema for a full specification:
+Now that we have the context of the types of experiments we would like to model, let's discuss the SweetPea grammar. A specification of an \texttt{Experiment} is a valid SweetPea program. The full schema is provided below; each part will be discussed in detail in the following subsections:
 
 \begin{verbatim}
 Experiment         = [Block, ...]
@@ -160,7 +160,7 @@ In the resulting experimental sequence, exactly one choice of level is selected 
 
 How do we represent relationships between levels and enforce constraints over them? All of the constraints we are considering relate to order, so let's consider a symbolic window which slides over the list of trials. A window has a width and a stride. The width specifies how many trials to consider at once; the stride specifies how many trials to move forward by when the window moves. When combined with user-defined derivation functions, windows allow the user to specify new "derived" levels and factors based on the values of the levels within the window.
 
-SweetPea provides constructors for two common window sizes: \texttt{WithinTrial} windows, which are used to define new properties based on properties of each individual trial, and \texttt{Transition} windows, which are used to define properties based on each consecutive pair of trials.
+SweetPea provides constructors for two common window sizes: \texttt{WithinTrial} windows, which are used to define new properties based on properties of each individual trial have width of 1, stride of 1. \texttt{Transition} windows, which are used to define properties based on each consecutive pair of trials, have width of 2, stride of 1.
 
 \begin{verbatim}
   Window Constructors:
@@ -184,7 +184,7 @@ The repetition function takes a list of ink colors. Because we're considering al
 
 We can use this repetition function to define a new pair of levels. Recall that levels act as indicators; when a level of a trial is true, that means that trial possesses the quality that level represents. The level derived using a transition-wide window and the repetition function defined above is true when the trial is has the same ink color property as the trial before it. Because levels can be defined to be any [printable] type, derivation functions can use any property of the level name as part of their logic.
 
-Putting it all together, these derived levels are represented in SweetPea as:
+Putting it all together, in the running example, these derived levels are represented in SweetPea as:
 
 \begin{verbatim}
 ink_color = ("ink_color", ["red", "blue"])
@@ -202,7 +202,7 @@ repeat_level = DerivedLevel("repeat",
                  Transition(repetition, [ink_color]))
 switch_level = DerivedLevel("switch",
                  Transition(switch, [ink_color]))
-transition_factor = Factor("congruent?", [repeat_level, switch_level])
+transition_factor = Factor("transition?", [repeat_level, switch_level])
 
 \end{verbatim}
 
@@ -295,7 +295,7 @@ block        = FullyCrossBlock(design, crossing, constraints)
 experiments  = synthesize_trials(block, 5)
 \end{verbatim}
 
-This experiment will produce an experimental sequence which might look like:
+This design will produce an experimental sequence which might look like:
 
 \begin{verbatim}
 color blue | text red  | congruent? inc
@@ -304,4 +304,5 @@ color red  | text blue | congruent? inc
 color red  | text red  | congruent? con
 \end{verbatim}
 
-Having discussed and motivated all of the aspects of the SweetPea language, in the next chapter we'll see how these elements are encoded as a boolean formula.
+
+In this chapter we have seen the SweetPea language features, which is the information a user would want to program in SweetPea. We have not yet discussed how these language features are implemented; in the following two chapters we will see how each of these primatives is encoded as a part of a boolean formula.

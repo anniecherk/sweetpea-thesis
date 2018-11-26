@@ -4,7 +4,7 @@
 
 A scientific conclusion is only as trustworthy as the experimental design it is based on. Incorrectly designed or biased experiments lead to possibly invalid conclusions; therefore creating correct, statistically unbiased, reproducible experimental designs is paramount to performing meaningful experiments.
 
-This thesis describes SweetPea, a system for describing experimental designs and generating experimental sequences that satisfy the design in a statistically rigerous way. SweetPea's high-level language allows scientists to declaratively describe the experiment they want to conduct rather than forcing them to mechanically describe how to construct their experimental sequences. This allows scientists to write concise, correct programs which describe their experiments, and produce unbiased experimental sequences; these programs can then be published and shared to document the experiment and facilitate replicability.
+This thesis describes \textbf{SweetPea}, a system for describing experimental designs and generating experimental sequences that satisfy the design in a statistically rigerous way. SweetPea's high-level language allows scientists to declaratively describe the experiment they want to conduct rather than forcing them to mechanically describe how to construct their experimental sequences. This allows scientists to write concise, correct programs which describe their experiments, and produce unbiased experimental sequences; these programs can then be published and shared to document the experiment and facilitate replicability.
 
 \section{Reliable Experimental Design}
 
@@ -12,7 +12,7 @@ The replicability crisis in experimental science is fueled by a lack of transpar
 
 SweetPea can be viewed as a domain-specific interface to SAT-sampling, and while there are other languages that rely on SAT-solvers \cite{torlak2014lightweight}, none that we know of leverage the guarantees provided by SAT-samplers. To ensure statistically significant results, every possible trial sequence that satisfies the constraints must have an equal likelihood of being chosen for the experiment. This guarantees that the method for generating trial sequences is not introducing bias. In practice, however, researchers construct these trial sequences without statistical guarantees. The number of valid sequences is both intractably large and sparse in the space of all sequences, so it is not possible to find a valid sequence by randomly sampling all sequences or by enumerating all valid sequences.
 
-SweetPea generates unbiased sequences of trials given satisfiable constraints. At the heart of the bias problem is the need to sample from constrained combinatorial spaces with statistical guarantees; SweetPea samples sequences of trials by compiling experimental designs into Boolean logic, which are then passed to a SAT-sampler. The SAT-sampler Unigen \cite{meel2016constrained}
+SweetPea generates unbiased sequences of trials given satisfiable constraints. At the heart of the bias problem is the need to sample from constrained combinatorial spaces with statistical guarantees; SweetPea samples sequences of trials by compiling experimental designs into boolean logic, which are then passed to a SAT-sampler. The SAT-sampler Unigen \cite{meel2016constrained}
 provides statistical guarantees that the solutions it finds are approximately uniformly probable in the space of all valid solutions. This means that while producing sequences of trials that are perfectly unbiased is intractable, we do the next best thing-- produce sequences that are \emph{approximately} unbiased.
 
 \section{Declarative Programming}
@@ -21,7 +21,7 @@ Virtually all fields of scientific research increasingly rely on computational t
 
 There is a need, then, for a software system that allows domain scientist to design unbiased, replicable experiments. Moreover, this system needs to provide an easy-to-use, declarative interface so that scientists who are not necessarily trained as software engineers can create and reason about complicated experimental designs, and transparently share their experimental setups and design choices. SweetPea is just such a system; it is a language which provides semantics for describing experiments, a runtime for synthesizing experimental sequences from specifications. While the need for a system to automate experimental design is general to many types of science, we have built a prototype targeted for psychology and neuroscience, where issues of reproducibility and complexity of design have become a focus of attention.
 
-SweetPea is a vision of what this needed system could be; it is still a work in progress. This thesis documents the motivation, goals, and current state and future vision for SweetPea.
+SweetPea is a vision of what this needed system could be. This thesis documents the motivation, goals, and current state and future vision for SweetPea.
 
 
 
