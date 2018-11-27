@@ -16,7 +16,7 @@ The current implementation of SweetPea is embedded in Python; the syntax present
 
 Why does SweetPea need to use a SAT-sampler? Using a SAT-sampler is like bringing a nuke to a knife fight; if a more straight-forward solution was tractable, it would be much simpler, faster, and more maintainable to use a simple solution.
 
-Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of \texttt{~}120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
+Recall that the goal is to find an ordering of trials which satisfies the constraints, and to return that valid ordering with uniform probability relative to all the other valid orderings. This means that our search space is the space of all possible orderings of the given set of trials (which may realistically consist of $\sim$120 trials, corresponding to $120!$ orderings), and elements of this search space are specific orderings.
 
 The first straight-forward solution is to try a random element in the search space, and see if that ordering satisfies the constraints. For realistic experiments, we found this approach to be intractable-- the set of solutions is sparse in the search space.
 
