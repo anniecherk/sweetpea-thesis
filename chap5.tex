@@ -2,7 +2,7 @@
 
 \chapter{SAT Encodings}
 
-In this chapter we'll examine how the language forms we saw in the previous chapter are efficiently encoded as boolean formulas. A program in SweetPea is translated to a boolean formula in Conjunctive Normal Form (CNF), which is a canonicalization that is frequently used by SAT solvers and samplers. We use two techniques for efficient SAT encodings: we encode large "counting" constraints as circuitry which counts set bits in a bitstring, and user's derivation constraints more directly. After examining how a program is encoded, we'll also discuss the runtime communication with the sampler, and why the correctness guarantees are preserved.
+In this chapter we will examine how the language forms we saw in the previous chapter are efficiently encoded as boolean formulas. A program in SweetPea is translated to a boolean formula in Conjunctive Normal Form (CNF), which is a canonicalization that is frequently used by SAT solvers and samplers. We use two techniques for efficient SAT encodings: we encode large "counting" constraints as circuitry which counts set bits in a bitstring, and user's derivation constraints more directly. After examining how a program is encoded, we will also discuss the runtime communication with the sampler, and why the correctness guarantees are preserved.
 
 \section{Conjunctive Normal Form (CNF)}
 
@@ -21,7 +21,7 @@ This specification is the language required to leverage the awesome power of SAT
 
 \section{Representing SweetPea Primitives in CNF}
 
-Recall that experimental designs describe trials in terms of factors and levels, and the relationships between those trials in terms of windows, derivation functions and counting constraints. Here, let's see how all of those components are encoded into a boolean formula; in the next chapter we'll discuss trade-offs of some encoding decisions and more details.
+Recall that experimental designs describe trials in terms of factors and levels, and the relationships between those trials in terms of windows, derivation functions and counting constraints. Here, let us see how all of those components are encoded into a boolean formula; in the next chapter we will discuss trade-offs of some encoding decisions and more details.
 
 \subsection{Representing Levels and Necessary Constraints}
 
@@ -43,17 +43,17 @@ The encoding we use allocates one boolean variable for each level of each factor
 
 There are two kinds of constraints which need to be encoded; user-defined constraints and two other constraints which are always necessary to correctly model the experiment. The first are \emph{consistency constraints} which state that only one level of each factor is selected at once. In the running example constraints of the form \texttt{(1 and not 2) or (not 1 and 2)} for each pair of levels would ensure that only one level is true at a time. The second kind of constraint is a \emph{crossing constraint} which ensures that the correct number of each kind of possible trial occurs in the experimental sequences.
 
-Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let's look at the constraints we need to add for the first trial-- first we'll add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected \texttt{(17 iff (1 and 3))}. We add constraints of this form for the other 3 states as well, ie \texttt{(18 iff (1 and 4))}, \texttt{(19 iff (2 and 3))}, \texttt{(20 iff (2 and 4))}. Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on.
+Representing crossing constraints is more complicated. In the running example, the logic for the crossing constraints should ensure that there is one (red ink, red text), one (red ink, blue text), one (blue ink, red text) and one (blue ink, blue text). To do encode this, we allocate 4 more variables for each trial, each of which literally encodes which of those 4 states that trial represents. See figure \figref{stroop_crossing_vars} for a visualization of the additional variables. Let us look at the constraints we need to add for the first trial-- first we will add a constraint that specifies that trial is in the (red ink, red text) state if-and-only-if the red ink level is selected, and the red text level is selected \texttt{(17 iff (1 and 3))}. We add constraints of this form for the other 3 states as well, ie \texttt{(18 iff (1 and 4))}, \texttt{(19 iff (2 and 3))}, \texttt{(20 iff (2 and 4))}. Next, we create constraints to ensure that exactly one of each of the state variables across all the trials is true, ie, (exactly one of 17, 21, 25, 29 is true), (exactly one of 18, 22, 26, 30 is true), and so on.
 
 A realistic experiment may have on the order of 100 trials. This means that we need to be careful with this last constraint, that exactly one of \texttt{<}list of length 100\texttt{>}, is true. In other types of crossings (see chapter 4, section 4.2.3) that constraint may more generally be exactly k of \texttt{<}list of length 100\texttt{>} is true. The naive encoding (these k, or those k, or those k, and so on) is exponential, therefore not efficient, and in practice too large for our problem size. Instead, we efficiently encode these \emph{counting constraints} following a technique similar to the one described in \cite{sinz2005towards}. For a detailed description of this algorithm, see the next chapter.
 
-In summary, an experimental sequence is represented as a list of boolean variables for each level of each trial. Assignments to these variables uniquely specify the experimental sequence. Irregardless of other user constraints, these variables are bound by constraints to ensure exactly one level is selected at a time for each factor, and that each state in the crossing is represented the correct number of times. The next chapter will examine the trade-offs from our encoding decisions. Next we'll see how these variables which represent levels can be used to encode derived levels and used with window constraints.
+In summary, an experimental sequence is represented as a list of boolean variables for each level of each trial. Assignments to these variables uniquely specify the experimental sequence. Irregardless of other user constraints, these variables are bound by constraints to ensure exactly one level is selected at a time for each factor, and that each state in the crossing is represented the correct number of times. The next chapter will examine the trade-offs from our encoding decisions. Next we will see how these variables which represent levels can be used to encode derived levels and used with window constraints.
 
 \subsection{Representing Derived Levels and Derivation Functions}
 
 The current SweetPea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
 
-Let's consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we'll allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. This means the variable allocation looks like:
+Let us consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we will allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. This means the variable allocation looks like:
 
 \begin{verbatim}
 ----------------------------------------------
@@ -69,7 +69,7 @@ Let's consider a congruency derivation over the simple Stroop example. In additi
 
 Then, we encode constraints on when these new variables are true. When is the first trial congruent? The first trial (\texttt{5}) is congruent if-and-only-if either the trial's color is red (\texttt{1}) and the text is red (\texttt{3}), or the color is blue (\texttt{2}) and the text is blue (\texttt{2}). In boolean logic this is: \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
 
-What if instead we considered transitions? Let's reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
+What if instead we considered transitions? Let us reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
 
 \begin{verbatim}
 ----------------------------------------------
