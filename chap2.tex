@@ -10,15 +10,6 @@ In this chapter we will identify the fundamental components of a trial-based exp
 
 \section{Running Example: the Stroop Experiment}
 
-The Stroop experiment is a well-known psychology paradigm, originally published by John Stroop in 1935 \cite{stroop1935studies}. A participant is shown a stimulus, and asked to perform a task based on some property of the stimulus; the researcher measures how the participant's reaction time and/or accuracy varies depending on the stimulus. One version of this experiment involves showing participants a word displayed in color and asking them to say the color in which it is displayed. All of the words are the names of colors, such as ``red'' and ``blue''. Some of the stimuli are congruent, meaning that the color in which it is displayed matches the text, such as the word "red" displayed in red. Other stimuli are incongruent, such as the word red displayed in blue (figure \figref{stroop_example}). The Stroop effect is the observation that participants exhibit poorer performance (longer reaction times and/or lower accuracy) when the stimulus is incongruent.
-
-Let us consider the simplest version of the Stroop experiment, in which the stimuli consist of two colors. Each stimulus is specified by independent and control variables, called \emph{factors}: display color and text. Each factor has two \emph{levels}, \texttt{red} and \texttt{blue}. Figure \figref{simple_full_crossing} shows the \emph{full crossing} of these factors for this simple case, for a total of 4 possible stimuli. For reference, real experiments have on the order of 5 to 8 factors with 2 to 4 levels, leading to tens to hundreds of possible stimuli. The \emph{design} of the experiment is the list of all factors that describe each stimulus. The design of the experiment may contain factors that are not present in the full-crossing.
-
-Each participant is shown an ordering of the possible stimuli. The researchers may want to place additional \emph{constraints} on the ordering, such as first familiarizing the participant with the task by showing some number of congruent stimuli before showing them a mix of congruent and incongruent stimuli. For our simple example, let us consider the constraint that there should be no repetitions of stimuli the text of which is the same. The ordering in \figref{simple_full_crossing} is a valid ordering which satisfies these constraints, but swapping the order of the first and second trial would produce an invalid ordering under those constraints.
-
-To prove that we do not introduce bias because of the way we construct experimental sequences, we would like to ensure that each valid sequence is equally likely. In this example, we have four stimuli so there are 4 factorial = 24 possible orderings. Of those 24 orderings, 8 satisfy the constraints as shown in \figref{valid_seqs}, and to provide this guarantee we want each of those 8 to be equally likely.
-
-
 \begin{figure}[t]%
     \centering
     \subfloat[A congruent Stroop stimulus.]{{\includegraphics[width=7cm]{fig_red_in_red} }}%
@@ -28,6 +19,7 @@ To prove that we do not introduce bias because of the way we construct experimen
     \label{fig:stroop_example}%
 \end{figure}
 
+The Stroop experiment is a well-known psychology paradigm, originally published by John Stroop in 1935 \cite{stroop1935studies}. A participant is shown a stimulus, and asked to perform a task based on some property of the stimulus; the researcher measures how the participant's reaction time and/or accuracy varies depending on the stimulus. One version of this experiment involves showing participants a word displayed in color and asking them to say the color in which it is displayed. All of the words are the names of colors, such as ``red'' and ``blue''. Some of the stimuli are congruent, meaning that the color in which it is displayed matches the text, such as the word "red" displayed in red. Other stimuli are incongruent, such as the word red displayed in blue (figure \figref{stroop_example}). The Stroop effect is the observation that participants exhibit poorer performance (longer reaction times and/or lower accuracy) when the stimulus is incongruent.
 
 \begin{figure}[t]%
     \centering
@@ -38,13 +30,21 @@ To prove that we do not introduce bias because of the way we construct experimen
     \label{fig:simple_full_crossing}%
 \end{figure}
 
+Let us consider the simplest version of the Stroop experiment, in which the stimuli consist of two colors. Each stimulus is specified by independent and control variables, called \emph{factors}: display color and text. Each factor has two \emph{levels}, \texttt{red} and \texttt{blue}. Figure \figref{simple_full_crossing} shows the \emph{full crossing} of these factors for this simple case, for a total of 4 possible stimuli. For reference, real experiments have on the order of 5 to 8 factors with 2 to 4 levels, leading to tens to hundreds of possible stimuli. The \emph{design} of the experiment is the list of all factors that describe each stimulus. The design of the experiment may contain factors that are not present in the full-crossing.
 
+Each participant is shown an ordering of the possible stimuli. The researchers may want to place additional \emph{constraints} on the ordering, such as first familiarizing the participant with the task by showing some number of congruent stimuli before showing them a mix of congruent and incongruent stimuli. For our simple example, let us consider the constraint that there should be no repetitions of stimuli the text of which is the same. The ordering in \figref{simple_full_crossing} is a valid ordering which satisfies these constraints, but swapping the order of the first and second trial would produce an invalid ordering under those constraints.
 
 \begin{figure}[t]
     \centerline{\includegraphics[angle=270,origin=c,width=10cm]{fig_valid_seqs}}
     \caption{Of the 24 possible orderings, the highlighted 8 satisfy the constraints.}%
     \label{fig:valid_seqs}%
 \end{figure}
+
+To prove that we do not introduce bias because of the way we construct experimental sequences, we would like to ensure that each valid sequence is equally likely. In this example, we have four stimuli so there are 4 factorial = 24 possible orderings. Of those 24 orderings, 8 satisfy the constraints as shown in \figref{valid_seqs}, and to provide this guarantee we want each of those 8 to be equally likely.
+
+
+
+
 
 
 \section{A Language for Experimental Design}
@@ -58,7 +58,7 @@ First, we represent the factors directly as a list of levels:
 %\begin{code}
 \begin{verbatim}
 display_color = Factor("display_color", ["red", "blue"])
-text      = Factor("text",      ["red", "blue"])
+text          = Factor("text",      ["red", "blue"])
 \end{verbatim}
 %\end{code}
 
