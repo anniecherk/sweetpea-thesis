@@ -69,24 +69,44 @@ As mentioned in the previous section, it is also sometimes useful to have multip
 
 Now that we have the context of the types of experiments we would like to model, let us discuss the SweetPea grammar. A specification of an \texttt{Experiment} is a valid SweetPea program. The full schema is provided below; each part will be discussed in detail and each term defined in the following subsections:
 
+
 \begin{verbatim}
-Experiment         = [Block, ...]
-Block              = Design Crossing [Constraint, ...]
-Design             = [Factor, ...]
-Crossing           = [Factor, ...] CrossingType
-CrossingType       = FullyCrossed
-                   | MultipleFullyCrossed
-Constraint         = AtMostKInARow  K (FactorName, LevelName)
-                   | ExactlyKInARow K (FactorName, LevelName)
-                   | AtLeastKInARow K (FactorName, LevelName)
+FactorName         = <any printable type>
+Level              = <any printable type> | [Level, ...]
 Factor             = FactorName [Level, ...]
                    | FactorName [DerivedLevel, ...]
 DerivedLevel       = LevelName Window
 Window             = Stride Width DerivationFunction [FactorName, ...]
 DerivationFunction = ( [FactorName, ...]... ) -> Boolean
-Level              = <any printable type> | [Level, ...]
-FactorName         = <any printable type>
+Constraint         = AtMostKInARow  K (FactorName, LevelName)
+                   | ExactlyKInARow K (FactorName, LevelName)
+                   | AtLeastKInARow K (FactorName, LevelName)
+CrossingType       = FullyCrossed
+                   | MultipleFullyCrossed
+Crossing           = [Factor, ...] CrossingType
+Design             = [Factor, ...]
+Block              = Design Crossing [Constraint, ...]
+Experiment         = [Block, ...]
 \end{verbatim}
+
+% \begin{verbatim}
+% Experiment         = [Block, ...]
+% Block              = Design Crossing [Constraint, ...]
+% Design             = [Factor, ...]
+% Crossing           = [Factor, ...] CrossingType
+% CrossingType       = FullyCrossed
+%                    | MultipleFullyCrossed
+% Constraint         = AtMostKInARow  K (FactorName, LevelName)
+%                    | ExactlyKInARow K (FactorName, LevelName)
+%                    | AtLeastKInARow K (FactorName, LevelName)
+% Factor             = FactorName [Level, ...]
+%                    | FactorName [DerivedLevel, ...]
+% DerivedLevel       = LevelName Window
+% Window             = Stride Width DerivationFunction [FactorName, ...]
+% DerivationFunction = ( [FactorName, ...]... ) -> Boolean
+% Level              = <any printable type> | [Level, ...]
+% FactorName         = <any printable type>
+% \end{verbatim}
 
 Some of these terms are specified directly, like FactorName and Level, while others are created via constructors. A full list of the constructors in SweetPea is:
 
