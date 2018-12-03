@@ -40,7 +40,7 @@ As mentioned in the previous chapter, we encode levels by allocating one boolean
 A fully crossed design specifies that each possible combination of levels occurs once in the design. A realistic experiment may have 7 factors, with 2 levels each, for a total of $2^7$ = 128 trials. Each of the levels will appear in half the trials, which means we need to encode constraints of the form "exactly 64 of these 128 variables must be true". The naive encoding ("these 64, or those 64, or those 64, etc") will have 64 choose 128 clauses, which is $10^{37}$ clauses-- far more than any SAT solver can possibly handle. Therefore, we need to encode these kinds of counting constraints in an encoding which is linear in the number of clauses and variables.
 
 To achieve this linear encoding, we emulate the logic in a \emph{popcount} circuit. A popcount circuit is a piece of hardware built out of logic gates which, given a bit string, reports how many bits of the bit string are set. A popcount circuit is implemented as a series of multi-bit wide adders. To explain how we emulate the logic in these circuits we will start with adders and build up to the popcount circuit.
- 
+
 \subsection{Adders}
 
 \begin{figure}[t]
@@ -95,7 +95,7 @@ Alternative ways to build multi-bit adders include carry-lookahead adders and ca
 The popcount circuit counts the number of bits which are set in a bitstring by a divide-and-conquer-like technique. We will discuss the process below; refer to \figref{popcount} for a diagram.
 
 \begin{figure}[t]
-    \centerline{\includegraphics[origin=c,width=12cm]{fig_popcount}}
+    \centerline{\includegraphics[origin=c,width=15cm]{fig_popcount}}
     \caption{The logic of a popcount circuit.}%
     \label{fig:popcount}%
 \end{figure}
