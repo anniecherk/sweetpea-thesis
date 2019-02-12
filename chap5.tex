@@ -63,7 +63,7 @@ In summary, an experimental sequence is represented as a list of boolean variabl
 
 The current SweetPea implementation special-cases the constraint encoding for congruency and transitions because these are common constraints in the experiments we wish to model.
 
-Let us consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we will allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. This means the variable allocation looks like:
+Let us consider a congruency derivation over the simple Stroop example. In addition to the variables which represent the levels of each trial, we will allocate 2 new variables for each trial each of which indicates whether or not the trial is congruent. See \tabref{stroop_congruency_vars} for illustration of the variable allocation.
 
 % \begin{verbatim}
 % ----------------------------------------------
@@ -83,7 +83,9 @@ Let us consider a congruency derivation over the simple Stroop example. In addit
 
 Then, we encode constraints on when these new variables are true. When is the first trial congruent? The first trial (\texttt{5}) is congruent if-and-only-if either the trial's color is red (\texttt{1}) and the text is red (\texttt{3}), or the color is blue (\texttt{2}) and the text is blue (\texttt{2}). In boolean logic this is: \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
 
-What if instead we considered transitions? Let us reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial:
+What if instead we considered transitions? Let us reinterpret the variable named \texttt{5} to indicate whether that trial has the same text as the following trial (see \tabref{stroop_transition_vars} for illustration).
+
+
 
 % \begin{verbatim}
 % ----------------------------------------------
