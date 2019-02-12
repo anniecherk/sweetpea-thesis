@@ -42,45 +42,7 @@ An experimental sequence consists of a specification for every trial in the expe
 The encoding we use allocates one boolean variable for each level of each factor of each trial. See figure \tabref{encoding_strupe_vars} for a visualization of the variable allocation for the running Stroop example. In the running example, there are 4 trials, each of which is described by two factors with two levels. The encoding we use allocates one variable for every factor for every trial. As mentioned in the previous subsection, variables in the DIMACS CNF format are index-based, which means that the number 1 refers to the first boolean variable and so on. This means that the assignments to variables 1 through 4 represents the specification of the first trial. For instance, the assignment \texttt{1 -2 -3 4} means the display color is red (and not blue), and the text is blue (and not red). For any experiment we allocate (total number of levels) * (number of trials) boolean variables which directly encode a specification of an experimental sequence.
 
 
-\begin{table}[t]
-  \centering
-\begin{tabular}{c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |c|c|}
-\cline{2-5}
-& \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} \\ \cline{2-5}
-\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        \\ \hline
-\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           \\ \hline
-\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 5}                & {\color[HTML]{333333} 6}                & 7           & 8           \\ \hline
-\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 9}                & {\color[HTML]{333333} 10}               & 11          & 12          \\ \hline
-\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          \\ \hline
-\end{tabular}
-\caption{Variable allocation for the running Stroop example.}
-\label{tab:encoding_strupe_vars}%
-\end{table}
 
-
-\begin{table}[t]
-  \centering
-\begin{tabular}{c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |c|c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |}
-\cline{2-9}
-                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{4}{c|}{\cellcolor[HTML]{EFEFEF}state} \\ \cline{2-9}
-\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & (r, r)      & (r, b)     & (b, r)     & (b, b)     \\ \hline
-\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 17          & 18         & 19         & 20         \\ \hline
-\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 5}                & {\color[HTML]{333333} 6}                & 7           & 8           & 21          & 22         & 23         & 24         \\ \hline
-\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 9}                & {\color[HTML]{333333} 10}               & 11          & 12          & 25          & 26         & 27         & 28         \\ \hline
-\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 29          & 30         & 31         & 32         \\ \hline
-\end{tabular}
-
-\caption{Additional variable allocation necessary for encoding the states possible in the full crossing.}%
-\label{tab:stroop_crossing_vars}
-\end{table}
 
 
 % \begin{figure}[t]
@@ -115,22 +77,8 @@ Let us consider a congruency derivation over the simple Stroop example. In addit
 % ----------------------------------------------
 % \end{verbatim}
 
-\begin{table}[h]
-  \centering
-\begin{tabular}{c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |c|c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |}
-\cline{2-7}
-                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}congruent?} \\ \cline{2-7}
-\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & con                        & inc                        \\ \hline
-\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 5                          & 6                          \\ \hline
-\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 7}                & {\color[HTML]{333333} 8}                & 9           & 10          & 11                         & 12                         \\ \hline
-\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 17                         & 18                         \\ \hline
-\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 19}               & {\color[HTML]{333333} 20}               & 21          & 22          & 23                         & 24                         \\ \hline
-\end{tabular}
-\end{table}
+
+
 
 
 Then, we encode constraints on when these new variables are true. When is the first trial congruent? The first trial (\texttt{5}) is congruent if-and-only-if either the trial's color is red (\texttt{1}) and the text is red (\texttt{3}), or the color is blue (\texttt{2}) and the text is blue (\texttt{2}). In boolean logic this is: \texttt{5 iff (1 and 3) or (2 and 4)}. We create constraints of this form for all the remaining variables, and translate this constraint to CNF through a general CNF conversion technique.
@@ -149,22 +97,8 @@ What if instead we considered transitions? Let us reinterpret the variable named
 % ----------------------------------------------
 % \end{verbatim}
 
-\begin{table}[h]
-  \centering
-\begin{tabular}{c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |c|c|
->{\columncolor[HTML]{EFEFEF}}c |
->{\columncolor[HTML]{EFEFEF}}c |}
-\cline{2-7}
-                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}transition} \\ \cline{2-7}
-\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & switch                     & repeat                     \\ \hline
-\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 5                          & 6                          \\ \hline
-\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 7}                & {\color[HTML]{333333} 8}                & 9           & 10          & 11                         & 12                         \\ \hline
-\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 17                         & 18                         \\ \hline
-\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 19}               & {\color[HTML]{333333} 20}               & 21          & 22          & 23                         & 24                         \\ \hline
-\end{tabular}
-\end{table}
+
+
 
 We can then state that the trial switches (\texttt{5}) if-and-only-if this trial's text is red (\texttt{3}) and the next trial's text is also red (\texttt{9}), or they are both blue (\texttt{4} and \texttt{10}). In boolean logic this is: \texttt{5 iff (3 and 9) or (4 and 10)}. This identical clause structure allows us to model both of these common derivations. Encoding arbitrary derivations is left as future work.
 
@@ -182,3 +116,92 @@ Unigen is a near-uniform SAT sampler. Near-uniform is defined in \cite{meel2016c
 This guarantees that the number of \emph{SAT witnesses}, or satisfying solutions, to the CNF is approximately uniformly probable. How does the number of satisfying SAT solutions relate to the number of experimental sequences which satisfy the experimental design?
 
 When we translate from the high level specification to the boolean formula, we introduce new internal boolean variables (ie the sum and carry bits of the adders in the popcount encoding). We hypothesize that the number of satisfying SAT solutions is exactly the same as the number of experiment sequences when none of the internal boolean variables are redundant. Then, all the variables which directly encode the experiment are in lockstep with all the extra internal variables. If there are redundant variables, they could skew the number of satisfying assignments such that finding an assignment would be uniform with those variables, but not in the variables we care about. To the best of our knowledge, our encoding does not introduce redundant variables, and therefore preserves this guarantee.
+
+
+
+\begin{table}
+  \centering
+  \caption{Variable allocation for the running Stroop example.}
+\begin{tabular}{c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |c|c|}
+\cline{2-5}
+& \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} \\ \cline{2-5}
+\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        \\ \hline
+\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           \\ \hline
+\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 5}                & {\color[HTML]{333333} 6}                & 7           & 8           \\ \hline
+\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 9}                & {\color[HTML]{333333} 10}               & 11          & 12          \\ \hline
+\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          \\ \hline
+\end{tabular}
+\label{tab:encoding_strupe_vars}%
+\end{table}
+
+
+\begin{table}
+  \centering
+  \caption{Additional variable allocation necessary for encoding the states possible in the full crossing.}%
+\begin{tabular}{c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |c|c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |}
+\cline{2-9}
+                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{4}{c|}{\cellcolor[HTML]{EFEFEF}state} \\ \cline{2-9}
+\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & (r, r)      & (r, b)     & (b, r)     & (b, b)     \\ \hline
+\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 17          & 18         & 19         & 20         \\ \hline
+\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 5}                & {\color[HTML]{333333} 6}                & 7           & 8           & 21          & 22         & 23         & 24         \\ \hline
+\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 9}                & {\color[HTML]{333333} 10}               & 11          & 12          & 25          & 26         & 27         & 28         \\ \hline
+\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 29          & 30         & 31         & 32         \\ \hline
+\end{tabular}
+
+
+\label{tab:stroop_crossing_vars}
+\end{table}
+
+
+
+\begin{table}
+  \centering
+  \caption{Variable allocation necessary for the congruency contraint.}%
+\begin{tabular}{c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |c|c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |}
+\cline{2-7}
+                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}congruent?} \\ \cline{2-7}
+\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & con                        & inc                        \\ \hline
+\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 5                          & 6                          \\ \hline
+\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 7}                & {\color[HTML]{333333} 8}                & 9           & 10          & 11                         & 12                         \\ \hline
+\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 17                         & 18                         \\ \hline
+\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 19}               & {\color[HTML]{333333} 20}               & 21          & 22          & 23                         & 24                         \\ \hline
+\end{tabular}
+
+
+\label{tab:stroop_congruency_vars}
+\end{table}
+
+
+
+\begin{table}
+  \caption{Variable allocation necessary for the transition contraint.}%
+  \centering
+\begin{tabular}{c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |c|c|
+>{\columncolor[HTML]{EFEFEF}}c |
+>{\columncolor[HTML]{EFEFEF}}c |}
+\cline{2-7}
+                              & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}{\color[HTML]{333333} display color}} & \multicolumn{2}{c|}{text} & \multicolumn{2}{c|}{\cellcolor[HTML]{EFEFEF}transition} \\ \cline{2-7}
+\multirow{-2}{*}{}            & {\color[HTML]{333333} red}              & {\color[HTML]{333333} blue}             & red         & blue        & switch                     & repeat                     \\ \hline
+\multicolumn{1}{|c|}{Trial 1} & {\color[HTML]{333333} 1}                & {\color[HTML]{333333} 2}                & 3           & 4           & 5                          & 6                          \\ \hline
+\multicolumn{1}{|c|}{Trial 2} & {\color[HTML]{333333} 7}                & {\color[HTML]{333333} 8}                & 9           & 10          & 11                         & 12                         \\ \hline
+\multicolumn{1}{|c|}{Trial 3} & {\color[HTML]{333333} 13}               & {\color[HTML]{333333} 14}               & 15          & 16          & 17                         & 18                         \\ \hline
+\multicolumn{1}{|c|}{Trial 4} & {\color[HTML]{333333} 19}               & {\color[HTML]{333333} 20}               & 21          & 22          & 23                         & 24                         \\ \hline
+\end{tabular}
+
+
+\label{tab:stroop_transition_vars}
+\end{table}

@@ -45,13 +45,9 @@ Sometimes, however, factors either need to be excluded or duplicated to make an 
 
 Fully-crossing a design is a form of balancing-- it is the specification that each level occurs as frequently as each other level, that each level occurs once, and that all combinations of levels occur with equal frequency.
 
-\begin{figure}[t]
-    \centerline{\includegraphics[origin=c,width=10cm]{fig_weighted_crossing}}
-    \caption{Full crossing of a 3 color Stroop experiment. There are more congruent stimuli (along the diagonal) than incongruent stimuli.}%
-    \label{fig:weighted_crossing}%
-\end{figure}
 
-Sometimes the constraint of using a full-crossing makes other types of balancing impossible because the levels are over-constrained. Consider, for instance, the Stroop test with 3 different colors instead of two (as in \figref{weighted_crossing}): then it isn't possible to both fully-cross the design and to balance the congruent and incongruent levels. (This is because there are 3 congruent levels, and 6 incongruent levels). One possible desired outcome in this case is for SweetPea to report that an experiment is over-constrained.
+
+Sometimes the constraint of using a full-crossing makes other types of balancing impossible because the levels are over-constrained. Consider, for instance, the Stroop test with 3 different colors instead of two (as in \shortfigref{weighted_crossing}): then it isn't possible to both fully-cross the design and to balance the congruent and incongruent levels. (This is because there are 3 congruent levels, and 6 incongruent levels). One possible desired outcome in this case is for SweetPea to report that an experiment is over-constrained.
 
 Another alternative is that if balancing the congruent and incongruent levels is more important than a fully-crossed design, then we can instead create a \emph{weighted crossing}. In a weighted crossing we can specify that we wish to under-sample certain levels (the incongruent ones in our example) or over-sample other levels (the congruent ones). Weighted crossings also allow us to express the experiments mentioned above, where the full crossing has either too many or too few stimuli to be practical. This desirable, more general crossing specification, is not currently implemented in SweetPea and is further discussed in the Future Work Chapter.
 
@@ -163,11 +159,6 @@ display_color  = Factor("display_color",    [light_colors, dark_colors])
 
 In the resulting experimental sequence, exactly one choice of level is selected per trial; if a factor has nested levels then the nesting is flattened in the final experimental sequence. Nesting is only useful at the high-level to describe groupings of levels, for instance to be the participant of a constraint.
 
-\begin{figure}[t]
-    \centerline{\includegraphics[origin=c,width=10cm]{fig_windows}}
-    \caption{Windows define the scope of relationships between trials.}%
-    \label{fig:windows}%
-\end{figure}
 
 
 \subsection{Deriving Levels with Windows}
@@ -247,7 +238,7 @@ inc_level  = DerivedLevel("inc",
 congruence_factor = Factor("congruent?", [con_level, inc_level])
 \end{verbatim}
 
-Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. See \figref{windows} for an illustration. Some experiments may wish to define relationships which skip trials in the middle of the sequences. Another example is an experiment with a "bait" trial: participants are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
+Windows allow us to represent, more generally than just transitions and within-trial constraints, relationships across a sequence of trials. See \shortfigref{windows} for an illustration. Some experiments may wish to define relationships which skip trials in the middle of the sequences. Another example is an experiment with a "bait" trial: participants are asked to respond based on a property of a trial some number of trials previous. Additionally, changing the stride allows for things like specifying a constraint over the first half, and then second half of the experiment.
 
 SweetPea currently supports transition and congruency constraints, but does not support the most general form of derivation function. See future work for a discussion on how to handle fully arbitrary derivation functions.
 
@@ -279,7 +270,7 @@ Block constructors:
 
 Once we have described the trials in terms of levels and factors, we need to specify the set of trials that make up the experiment. The design of the experiment is the specification of factors which represent a trial. To specify the set of trials in the experiment we need to specify the crossing of the design. As mentioned before, a full crossing is commonly, but not always, used.
 
-The design is specified explicitly as a list of factors, while the block is built by a constructor which knows how to construct the block based on the crossing type. Each constructor takes two lists of factors, one which represents all the factors relevant to a trial (\texttt{design}), and one which represents which factors should be included in the crossing (\texttt{crossing\_factors}). Each trial in the resulting experimental sequence will have a value for factors specified in \texttt{design}.
+The design is specified explicitly as a list of factors, while the block is built by a constructor which knows how to construct the block based on the crossing type. Each constructor takes two lists of factors, one which represents all the factors relevant to a trial (\texttt{design}), and one which represents which factors should be included in the crossing\\(\texttt{crossing\_factors}). Each trial in the resulting experimental sequence will have a value for factors specified in \texttt{design}.
 
 The final aspect we need to specify is the structure of the experimental sequence. An experimental sequence is a list of one or more experimental blocks. Each experimental block consists of a crossing of the experimental design. Some experiments may wish to specify multiple experimental blocks to represent prologue or epilogue blocks, or to split an experiment across multiple sessions.
 
@@ -326,3 +317,16 @@ color red  | text red  | congruent? con
 
 
 In this chapter we have seen the SweetPea language features, which is the information a user would want to program in SweetPea. We have not yet discussed how these language features are implemented; in the following two chapters we will see how each of these primitives is encoded as a part of a boolean formula.
+
+
+\begin{figure}
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_weighted_crossing}}
+    \caption{Full crossing of a 3 color Stroop experiment. There are more congruent stimuli (along the diagonal) than incongruent stimuli.}%
+    \label{fig:weighted_crossing}%
+\end{figure}
+
+\begin{figure}
+    \centerline{\includegraphics[origin=c,width=10cm]{fig_windows}}
+    \caption{Windows define the scope of relationships between trials.}%
+    \label{fig:windows}%
+\end{figure}
